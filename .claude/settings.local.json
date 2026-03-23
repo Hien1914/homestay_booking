@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -l \"Schema::create\" /d/Study/KLTN/homestay_booking/database/migrations/*.php)",
+      "Bash(xargs -I {} basename {})"
+    ]
+  }
+}

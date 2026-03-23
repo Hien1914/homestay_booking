@@ -1,0 +1,25 @@
+.payment-page { background: #f8fafc; min-height: calc(100vh - var(--nav-height)); padding: 1.5rem 0 3rem; }
+.payment-page-title { margin: 0 0 1.5rem; font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
+.payment-layout { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; align-items: start; }
+@media (max-width: 991px) { .payment-layout { grid-template-columns: 1fr; } }
+.payment-card { background: #fff; border-radius: var(--radius); padding: 1.75rem; box-shadow: 0 1px 3px rgba(13,40,90,0.06); }
+.payment-card-title { margin: 0 0 1.25rem; font-size: 1.1rem; font-weight: 700; }
+.payment-methods { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+.payment-method { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; border: 2px solid rgba(13,40,90,0.15); border-radius: var(--radius-sm); text-decoration: none; color: var(--text-dark); transition: all 0.2s; }
+.payment-method:hover { border-color: var(--blue-500); color: var(--blue-600); }
+.payment-method.is-active { border-color: var(--blue-500); background: var(--blue-50); color: var(--blue-600); }
+.payment-qr-section { text-align: center; padding: 1.5rem; background: var(--off-white); border-radius: var(--radius-sm); }
+.payment-qr-label { margin: 0 0 1rem; font-size: 0.9rem; color: var(--text-mid); }
+.payment-qr-wrap { display: inline-block; padding: 1rem; background: #fff; border-radius: var(--radius-sm); }
+.payment-qr-img { display: block; }
+.payment-qr-amount { margin: 1rem 0 0.25rem; font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
+.payment-qr-note, .payment-qr-demo { margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--text-mid); }
+.payment-summary-card { background: #fff; border-radius: var(--radius); padding: 1.5rem; box-shadow: 0 1px 3px rgba(13,40,90,0.06); }
+.payment-summary-title { margin: 0 0 1rem; font-size: 1.05rem; font-weight: 700; }
+.payment-summary-name { margin: 0 0 0.25rem; font-weight: 600; }
+.payment-summary-code { margin: 0 0 1rem; font-size: 0.9rem; color: var(--text-mid); }
+.payment-summary-rows { margin-bottom: 1rem; }
+.payment-summary-row { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 0.9rem; }
+.payment-summary-row--highlight { font-weight: 700; font-size: 1rem; }
+.payment-summary-row--muted { color: var(--text-light); }
+.payment-back-btn { width: 100%; }
