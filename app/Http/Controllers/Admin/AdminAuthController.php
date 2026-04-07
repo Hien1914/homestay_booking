@@ -42,13 +42,6 @@ class AdminAuthController extends Controller
                 ->with('tab', 'account');
         }
 
-        if (! $user->is_active) {
-            return back()
-                ->withInput($request->only('email'))
-                ->with('error', 'Tài khoản đã bị khóa.')
-                ->with('tab', 'account');
-        }
-
         $user->tokens()->delete();
         $token = $user->createToken('admin_token')->plainTextToken;
 

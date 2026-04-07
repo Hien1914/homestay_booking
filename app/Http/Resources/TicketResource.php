@@ -16,16 +16,6 @@ class TicketResource extends JsonResource
             'description' => $this->description,
             'status'      => $this->status,
             'booking_id'  => $this->booking_id,
-            'replies'     => $this->whenLoaded(
-                'replies',
-                fn() =>
-                $this->replies->map(fn($r) => [
-                    'id'         => $r->id,
-                    'message'    => $r->message,
-                    'sender'     => ['id' => $r->sender->id, 'name' => $r->sender->name, 'role' => $r->sender->role],
-                    'created_at' => $r->created_at->format('d/m/Y H:i'),
-                ])
-            ),
             'created_at'  => $this->created_at->format('d/m/Y H:i'),
         ];
     }

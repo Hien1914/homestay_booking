@@ -11,24 +11,32 @@ class Review extends Model
 
     protected $fillable = [
         'booking_id',
-        'user_id',
+        'reviewer_id',
         'homestay_id',
         'rating',
         'comment',
-        'images',
-        'admin_reply',
     ];
 
-    protected $casts = ['images' => 'array'];
+    public $timestamps = false;
+
+    // Automatically manage created_at
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            $model->created_at = $model->freshTimestamp();
+        });
+    }
 
     public function booking()
     {
         return $this->belongsTo(Booking::class);
     }
-    public function user()
+
+    public function reviewer()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class , 'reviewer_id');
     }
+
     public function homestay()
     {
         return $this->belongsTo(Homestay::class);

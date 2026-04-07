@@ -6,8 +6,8 @@
 .payment-card-title { margin: 0 0 1.25rem; font-size: 1.1rem; font-weight: 700; }
 .payment-methods { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
 .payment-method { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; border: 2px solid rgba(13,40,90,0.15); border-radius: var(--radius-sm); text-decoration: none; color: var(--text-dark); transition: all 0.2s; }
-.payment-method:hover { border-color: var(--blue-500); color: var(--blue-600); }
-.payment-method.is-active { border-color: var(--blue-500); background: var(--blue-50); color: var(--blue-600); }
+.payment-method:hover { border-color: var(--green-500); color: var(--green-600); }
+.payment-method.is-active { border-color: var(--green-500); background: var(--green-50); color: var(--green-600); }
 .payment-qr-section { text-align: center; padding: 1.5rem; background: var(--off-white); border-radius: var(--radius-sm); }
 .payment-qr-label { margin: 0 0 1rem; font-size: 0.9rem; color: var(--text-mid); }
 .payment-qr-wrap { display: inline-block; padding: 1rem; background: #fff; border-radius: var(--radius-sm); }
@@ -23,3 +23,4 @@
 .payment-summary-row--highlight { font-weight: 700; font-size: 1rem; }
 .payment-summary-row--muted { color: var(--text-light); }
 .payment-back-btn { width: 100%; }
+

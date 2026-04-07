@@ -1,6 +1,6 @@
 .profile-page {
     background:
-        radial-gradient(circle at top left, rgba(90, 134, 211, 0.14), transparent 24%),
+        radial-gradient(circle at top left, rgba(83, 162, 82, 0.14), transparent 24%),
         radial-gradient(circle at right center, rgba(255, 188, 196, 0.18), transparent 28%),
         linear-gradient(180deg, #fff9fb 0%, #f6f9ff 100%);
     min-height: calc(100vh - 120px);
@@ -41,7 +41,7 @@
     width: 112px;
     height: 112px;
     border-radius: 999px;
-    background: linear-gradient(135deg, #315f9f, #5d8ed0);
+    background: linear-gradient(135deg, #78bd78, #53a252);
     color: #fff;
     display: flex;
     align-items: center;
@@ -50,7 +50,7 @@
     font-weight: 700;
     background-size: cover;
     background-position: center;
-    box-shadow: 0 18px 40px rgba(67, 110, 173, 0.24);
+    box-shadow: 0 18px 40px rgba(83, 162, 82, 0.24);
 }
 
 .profile-avatar.has-image,
@@ -86,15 +86,15 @@
 .profile-chip {
     padding: 8px 14px;
     border-radius: 999px;
-    background: linear-gradient(135deg, #315f9f, #4c79ba);
+    background: linear-gradient(135deg, #78bd78, #53a252);
     color: #fff;
     font-size: 0.85rem;
     font-weight: 600;
 }
 
 .profile-chip--soft {
-    background: #eef4ff;
-    color: #42679c;
+    background: #f1f9f1;
+    color: #4a9349;
 }
 
 .profile-detail-card {
@@ -114,7 +114,7 @@
     letter-spacing: 0.12em;
     font-size: 0.78rem;
     font-weight: 700;
-    color: #5d84bc;
+    color: #53a252;
     margin-bottom: 8px;
 }
 
@@ -182,11 +182,11 @@
 }
 
 .profile-primary-btn {
-    background: linear-gradient(135deg, #2b5a97, #5e89cb);
+    background: linear-gradient(135deg, #78bd78, #53a252);
     color: #fff;
     padding: 14px 18px;
     width: 100%;
-    box-shadow: 0 16px 30px rgba(65, 107, 173, 0.22);
+    box-shadow: 0 16px 30px rgba(83, 162, 82, 0.22);
 }
 
 .profile-secondary-btn {
@@ -196,8 +196,8 @@
 }
 
 .profile-ghost-btn {
-    background: #f3f7ff;
-    color: #41689d;
+    background: #f3fbf3;
+    color: #4a9349;
     padding: 12px 16px;
 }
 
@@ -205,10 +205,10 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(180deg, #f5f8ff 0%, #edf3ff 100%);
-    color: #31588c;
+    background: linear-gradient(180deg, #f7fcf7 0%, #edf7ed 100%);
+    color: #3f7f3f;
     padding: 13px 18px;
-    box-shadow: 0 10px 22px rgba(69, 106, 164, 0.12);
+    box-shadow: 0 10px 22px rgba(83, 162, 82, 0.12);
 }
 
 .profile-primary-btn:hover,
@@ -220,7 +220,7 @@
 }
 
 .profile-primary-btn:hover {
-    box-shadow: 0 18px 34px rgba(65, 107, 173, 0.28);
+    box-shadow: 0 18px 34px rgba(83, 162, 82, 0.28);
 }
 
 .profile-modal {

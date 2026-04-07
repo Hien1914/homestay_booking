@@ -33,7 +33,7 @@
 }
 
 .booking-breadcrumb__link:hover {
-    color: var(--blue-600);
+    color: var(--green-600);
 }
 
 .booking-breadcrumb__current {
@@ -51,7 +51,7 @@
     font-size: clamp(1.35rem, 2.5vw, 1.75rem);
     font-weight: 700;
     color: var(--text-dark);
-    font-family: var(--font-display), sans-serif;
+    font-family: var(--font-google-sans), sans-serif;
 }
 
 .booking-layout {
@@ -124,8 +124,8 @@
 
 .booking-input:focus {
     outline: none;
-    border-color: var(--blue-500);
-    box-shadow: 0 0 0 3px rgba(45, 125, 210, 0.15);
+    border-color: var(--green-500);
+    box-shadow: 0 0 0 3px rgba(83, 162, 82, 0.15);
 }
 
 .booking-textarea {
@@ -154,8 +154,8 @@
 }
 
 .booking-stepper-btn:hover:not(:disabled) {
-    background: var(--blue-50);
-    border-color: var(--blue-300);
+    background: var(--green-50);
+    border-color: var(--green-300);
 }
 
 .booking-stepper-btn:disabled {
@@ -201,12 +201,12 @@
 }
 
 .booking-radio input:checked + .booking-radio-box {
-    border-color: var(--blue-500);
-    background: var(--blue-50);
+    border-color: var(--green-500);
+    background: var(--green-50);
 }
 
 .booking-radio-box i {
-    color: var(--blue-500);
+    color: var(--green-500);
 }
 
 /* Sidebar */
@@ -234,7 +234,7 @@
 }
 
 .booking-summary-link:hover {
-    color: var(--blue-600);
+    color: var(--green-600);
 }
 
 .booking-summary-img {
@@ -301,7 +301,7 @@
 
 .booking-demo-notice {
     padding: 0.75rem 1rem;
-    background: var(--blue-50);
+    background: var(--green-50);
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
     color: var(--text-mid);
@@ -310,7 +310,7 @@
 
 .booking-demo-notice a,
 .booking-login-notice a {
-    color: var(--blue-600);
+    color: var(--green-600);
     font-weight: 600;
 }
 
@@ -333,3 +333,4 @@
     font-size: 1rem;
     border-radius: var(--radius-sm);
 }
+

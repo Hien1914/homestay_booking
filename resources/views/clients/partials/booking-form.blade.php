@@ -9,24 +9,33 @@
           <input id="bf-location" name="location" type="text" class="booking-form-segment-input" placeholder="Thêm điểm đến" autocomplete="off">
         </div>
       </div>
-      <div class="booking-form-segment">
-        <span class="booking-form-segment-ico" aria-hidden="true"><i class="fa-regular fa-calendar"></i></span>
+      <div class="booking-form-segment booking-form-segment--date-range">
+        <span class="booking-form-segment-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="booking-form-calendar-icon" fill="none">
+            <rect x="3.5" y="5.5" width="17" height="15" rx="3" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M7.5 3.75V7.25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M16.5 3.75V7.25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M3.5 9.5H20.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M8 13H8.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M12 13H12.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M16 13H16.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </span>
         <div class="booking-form-segment-main">
-          <label class="booking-form-segment-title" for="bf-checkin">Nhận phòng</label>
-          <input id="bf-checkin" name="check_in" type="date" class="booking-form-segment-input booking-form-segment-input--date" title="Chọn ngày nhận phòng">
-        </div>
-      </div>
-      <div class="booking-form-segment">
-        <span class="booking-form-segment-ico" aria-hidden="true"><i class="fa-regular fa-calendar"></i></span>
-        <div class="booking-form-segment-main">
-          <label class="booking-form-segment-title" for="bf-checkout">Trả phòng</label>
-          <input id="bf-checkout" name="check_out" type="date" class="booking-form-segment-input booking-form-segment-input--date" title="Chọn ngày trả phòng">
+          <label class="booking-form-segment-title" for="bf-checkin">Ngày nhận phòng - trả phòng</label>
+          <div class="booking-form-date-range" data-booking-dates>
+            <input id="bf-checkin" name="check_in" type="date" class="booking-form-date-native" title="Chọn ngày nhận phòng" data-date-input="checkin">
+            <input id="bf-checkout" name="check_out" type="date" class="booking-form-date-native" title="Chọn ngày trả phòng" data-date-input="checkout">
+            <button type="button" class="booking-form-date-trigger" data-date-trigger aria-label="Chọn ngày nhận và trả phòng">
+              <span class="booking-form-date-value" data-date-summary>dd/mm/yyyy - dd/mm/yyyy</span>
+            </button>
+          </div>
         </div>
       </div>
       <div class="booking-form-segment booking-form-segment--has-dropdown">
         <span class="booking-form-segment-ico" aria-hidden="true"><i class="fa-solid fa-user-group"></i></span>
         <div class="booking-form-segment-main">
-          <label class="booking-form-segment-title" for="bf-guests-trigger">Thành phần</label>
+          <label class="booking-form-segment-title" for="bf-guests-trigger">Số khách</label>
           <div class="booking-form-guests booking-form-select" data-booking-guests>
             <input type="hidden" name="adults" value="2" data-guests-input="adults">
             <input type="hidden" name="children" value="0" data-guests-input="children">
@@ -36,7 +45,7 @@
               <span class="booking-form-select-value" data-guests-summary>2 người lớn</span>
               <i class="fa-solid fa-chevron-down booking-form-select-caret" aria-hidden="true"></i>
             </button>
-            <div id="bf-guests-panel" class="booking-form-select-panel booking-form-guests-panel" hidden role="dialog" aria-modal="false" aria-label="Chọn thành phần nhóm">
+            <div id="bf-guests-panel" class="booking-form-select-panel booking-form-guests-panel" hidden role="dialog" aria-modal="false" aria-label="Chọn số khách">
               <div class="booking-form-guests-row">
                 <div class="booking-form-guests-row-text">
                   <span class="booking-form-guests-label">Người lớn</span>
@@ -90,6 +99,83 @@
   function clamp(n, min, max) {
     return Math.min(max, Math.max(min, n));
   }
+
+  function formatDisplayDate(value) {
+    if (!value) return 'dd/mm/yyyy';
+    var parts = value.split('-');
+    if (parts.length !== 3) return 'dd/mm/yyyy';
+    return parts[2] + '/' + parts[1] + '/' + parts[0];
+  }
+
+  function addDays(value, days) {
+    if (!value) return '';
+    var parts = value.split('-');
+    if (parts.length !== 3) return '';
+    var date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    date.setDate(date.getDate() + days);
+    var y = date.getFullYear();
+    var m = String(date.getMonth() + 1).padStart(2, '0');
+    var d = String(date.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
+  }
+
+  document.querySelectorAll('[data-booking-dates]').forEach(function (wrap) {
+    var checkIn = wrap.querySelector('[data-date-input="checkin"]');
+    var checkOut = wrap.querySelector('[data-date-input="checkout"]');
+    var trigger = wrap.querySelector('[data-date-trigger]');
+    var summary = wrap.querySelector('[data-date-summary]');
+    if (!checkIn || !checkOut || !trigger || !summary) return;
+
+    var today = new Date();
+    var todayValue = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+    checkIn.min = todayValue;
+
+    function syncSummary() {
+      summary.textContent = formatDisplayDate(checkIn.value) + ' - ' + formatDisplayDate(checkOut.value);
+    }
+
+    function openPicker(input) {
+      if (!input) return;
+      if (typeof input.showPicker === 'function') {
+        input.showPicker();
+      } else {
+        input.focus();
+        input.click();
+      }
+    }
+
+    function syncCheckoutLimit() {
+      if (checkIn.value) {
+        checkOut.min = addDays(checkIn.value, 1);
+      } else {
+        checkOut.min = todayValue;
+      }
+
+      if (checkIn.value && checkOut.value && checkOut.value <= checkIn.value) {
+        checkOut.value = '';
+      }
+    }
+
+    trigger.addEventListener('click', function () {
+      openPicker(checkIn);
+    });
+
+    checkIn.addEventListener('change', function () {
+      syncCheckoutLimit();
+      syncSummary();
+      openPicker(checkOut);
+    });
+
+    checkOut.addEventListener('change', function () {
+      if (checkIn.value && checkOut.value && checkOut.value <= checkIn.value) {
+        checkOut.value = '';
+      }
+      syncSummary();
+    });
+
+    syncCheckoutLimit();
+    syncSummary();
+  });
 
   document.querySelectorAll('[data-booking-guests]').forEach(function (wrap) {
     var trigger = wrap.querySelector('.booking-form-select-trigger');

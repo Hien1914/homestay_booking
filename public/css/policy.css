@@ -1,0 +1,71 @@
+/* Policy Page Styles */
+.policy-page-wrapper {
+    background-color: #ffffff;
+    padding: 40px 0;
+    color: #333333;
+}
+
+.policy-page-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--green-800);
+    margin-bottom: 24px;
+    text-align: center;
+    font-family: var(--font-google-sans);
+}
+
+.policy-section {
+    margin-bottom: 16px;
+}
+
+.policy-section-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--green-700);
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.policy-subsection-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #444444;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.policy-content p {
+    margin-top: 0;
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.policy-content ul, .policy-content ol {
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.policy-content ol[type="a"] {
+    list-style-type: lower-alpha;
+}
+
+.policy-content ul ul, .policy-content ol ul {
+    list-style-type: circle;
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+
+.policy-content li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.policy-content li:last-child {
+    margin-bottom: 0;
+}
+
+.policy-content strong {
+    color: #000000;
+}

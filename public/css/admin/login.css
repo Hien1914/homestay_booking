@@ -1,0 +1,56 @@
+/* ============ Login Page ============ */
+.admin-login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--admin-bg);
+    padding: 24px;
+}
+
+.admin-login-card {
+    width: 100%;
+    max-width: 1200px;
+    padding: 32px;
+    border-radius: 12px;
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.08);
+}
+
+.admin-login-card h2 { margin: 0 0 24px; font-size: 1.5rem; font-weight: 700; }
+
+.admin-login-field {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.admin-login-field i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--admin-muted);
+}
+
+.admin-login-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px 0 40px;
+    border-radius: 8px;
+    border: 1px solid var(--admin-border);
+    background: #fff;
+    font: inherit;
+    font-size: 0.875rem;
+}
+
+.admin-login-alert {
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.admin-login-alert.is-error { background: var(--admin-danger-soft); color: var(--admin-danger); }
+.admin-login-alert.is-success { background: var(--admin-success-soft); color: var(--admin-success); }

@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\HomestayController;
 use App\Http\Controllers\Api\BookingController;
@@ -9,9 +8,8 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\ChatController;
-use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\TicketController;
-use App\Http\Controllers\Api\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminApiController;
 use Illuminate\Support\Facades\Route;
 
 /* ── Auth ── */
@@ -22,22 +20,30 @@ Route::prefix('auth')->group(function () {
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password',  [AuthController::class, 'resetPassword']);
     Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-    
-    // Google OAuth
-    Route::get('/google/redirect',  [GoogleAuthController::class, 'redirect']);
-    Route::get('/google/callback',  [GoogleAuthController::class, 'callback']);
-    Route::post('/google/login',    [GoogleAuthController::class, 'loginWithToken']);
 });
 
-/* ── Public ── */
-Route::get('/homestays',                        [HomestayController::class, 'index']);
-Route::get('/homestays/{homestay}',             [HomestayController::class, 'show']);
-Route::get('/homestays/{homestay}/availability', [HomestayController::class, 'availability']);
-Route::get('/homestays/{homestay}/reviews',     [HomestayController::class, 'reviews']);
-Route::get('/homestays/{homestay}/faqs',        [FaqController::class, 'index']);
+/* ── Public & Authenticated Homestays ── */
+Route::prefix('homestays')->group(function () {
+    // Public endpoints
+    Route::get('/', [HomestayController::class, 'index']);
+    Route::get('/{homestay}', [HomestayController::class, 'show']);
+    Route::get('/{homestay}/availability', [HomestayController::class, 'availability']);
+    Route::get('/{homestay}/reviews', [HomestayController::class, 'reviews']);
+    Route::get('/{homestay}/bookings', [HomestayController::class, 'bookings']);
+    
+    // Authenticated endpoints (create, update, delete)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/', [HomestayController::class, 'store']);
+        Route::put('/{homestay}', [HomestayController::class, 'update']);
+        Route::delete('/{homestay}', [HomestayController::class, 'destroy']);
+    });
+});
 
 /* ── Authenticated ── */
 Route::middleware('auth:sanctum')->group(function () {
+    
+    // User's homestays
+    Route::get('/user/homestays', [HomestayController::class, 'userHomestays']);
 
     // User profile
     Route::get('/user/profile',      [UserController::class, 'profile']);
@@ -80,16 +86,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
 /* ── Admin ── */
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
-    Route::get('/users',                                [AdminController::class, 'users']);
-    Route::put('/users/{user}/toggle',                  [AdminController::class, 'toggleUser']);
-    Route::get('/homestays/pending',                    [AdminController::class, 'pendingHomestays']);
-    Route::put('/homestays/{homestay}/approve',         [AdminController::class, 'approveHomestay']);
-    Route::put('/homestays/{homestay}/reject',          [AdminController::class, 'rejectHomestay']);
-    Route::get('/stats',                                [AdminController::class, 'stats']);
-    Route::get('/faqs',                                 [FaqController::class, 'adminIndex']);
-    Route::post('/faqs',                                [FaqController::class, 'adminStore']);
-    Route::put('/faqs/{faq}',                           [FaqController::class, 'adminUpdate']);
-    Route::delete('/faqs/{faq}',                        [FaqController::class, 'adminDestroy']);
+    Route::get('/users',                                [AdminApiController::class, 'users']);
+    Route::put('/users/{user}/toggle',                  [AdminApiController::class, 'toggleUser']);
+    Route::get('/homestays/pending',                    [AdminApiController::class, 'pendingHomestays']);
+    Route::put('/homestays/{homestay}/approve',         [AdminApiController::class, 'approveHomestay']);
+    Route::put('/homestays/{homestay}/reject',          [AdminApiController::class, 'rejectHomestay']);
+    Route::get('/stats',                                [AdminApiController::class, 'stats']);
     Route::get('/tickets',                              [TicketController::class, 'adminIndex']);
     Route::put('/tickets/{ticket}/assign',              [TicketController::class, 'assign']);
     Route::put('/tickets/{ticket}/close',               [TicketController::class, 'adminClose']);

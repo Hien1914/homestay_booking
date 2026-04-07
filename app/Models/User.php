@@ -5,65 +5,52 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name',
+        'full_name',
         'email',
-        'google_id',
         'phone',
-        'password',
-        'avatar',
+        'password_hash',
         'role',
-        'is_active',
-        'id_card_number',
-        'id_card_front',
-        'id_card_back',
-        'is_id_verified',
+        'is_email_verified',
+        'avatar_url',
     ];
 
     protected $hidden = [
-        'password',
-        'remember_token',
-        'id_card_number',
-        'id_card_front',
-        'id_card_back',
+        'password_hash',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'is_active'         => 'boolean',
-        'is_id_verified'    => 'boolean',
-        'password'          => 'hashed',
-    ];
-
-    public function homestays()
+    public function getAuthPassword()
     {
-        return $this->hasMany(Homestay::class, 'admin_id');
+        return $this->password_hash;
     }
+
     public function bookings()
     {
-        return $this->hasMany(Booking::class);
-    }
-    public function reviews()
-    {
-        return $this->hasMany(Review::class, 'user_id');
-    }
-    public function wishlists()
-    {
-        return $this->hasMany(Wishlist::class);
-    }
-    public function tickets()
-    {
-        return $this->hasMany(Ticket::class, 'sender_id');
+        return $this->hasMany(Booking::class, 'guest_id');
     }
 
-    public function isAdmin(): bool
+    public function favorites()
     {
-        return $this->role === 'admin';
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'reviewer_id');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(UserNotification::class)->latest();
+    }
+
+    public function unreadNotificationsCount(): int
+    {
+        return $this->hasMany(UserNotification::class)->where('is_read', false)->count();
     }
 }

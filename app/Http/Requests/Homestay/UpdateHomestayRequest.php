@@ -6,23 +6,42 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateHomestayRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'title'               => 'required|string|min:5|max:200',
+            'type'                => 'required|string|max:100',
+            'description'         => 'required|string|min:100',
+            'address'             => 'required|string|max:255',
+            'province'            => 'required|string|max:100',
+            'ward'                => 'required|string|max:100',
+            'price_per_night'     => 'required|numeric|min:0',
+            'max_guests'          => 'required|integer|min:1|max:50',
+            'cover_image'         => 'nullable|image|mimes:jpeg,png,webp|max:5120',
+            'room_images'         => 'nullable|array',
+            'room_images.*'       => 'image|mimes:jpeg,png,webp|max:5120',
+            'amenities'           => 'nullable|array',
+            'amenities.*'         => 'integer|exists:amenities,id',
+            'delete_images'       => 'nullable|array',
+            'delete_images.*'     => 'integer|exists:homestay_images,id',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'price_per_night.min' => 'Giá tối thiểu là 0 VND/đêm',
+            'title.min'           => 'Tên homestay phải có ít nhất 5 ký tự',
+            'title.required'      => 'Vui lòng nhập tiêu đề',
+            'description.min'     => 'Mô tả phải có ít nhất 100 ký tự',
+            'description.required' => 'Vui lòng nhập mô tả',
+            'cover_image.max'     => 'Ảnh không vượt quá 5MB',
+            'room_images.*.max'   => 'Mỗi ảnh không vượt quá 5MB',
         ];
     }
 }

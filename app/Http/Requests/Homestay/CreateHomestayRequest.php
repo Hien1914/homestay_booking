@@ -14,29 +14,33 @@ class CreateHomestayRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'                => 'required|string|min:5|max:200',
-            'description'         => 'required|string|min:20',
-            'address'             => 'required|string',
+            'title'               => 'required|string|min:5|max:200',
+            'type'                => 'required|string|max:100',
+            'description'         => 'required|string|min:100',
+            'address'             => 'required|string|max:255',
             'province'            => 'required|string|max:100',
-            'price_per_night'     => 'required|numeric|min:50000',
+            'ward'                => 'required|string|max:100',
+            'price_per_night'     => 'required|numeric|min:0',
             'max_guests'          => 'required|integer|min:1|max:50',
-            'num_bedrooms'        => 'required|integer|min:0',
-            'num_beds'            => 'required|integer|min:1',
-            'num_bathrooms'       => 'required|integer|min:1',
-            'check_in_time'       => 'required|date_format:H:i',
-            'check_out_time'      => 'required|date_format:H:i',
+            'cover_image'         => 'required|image|max:5120',
+            'room_images'         => 'nullable|array',
+            'room_images.*'       => 'image|max:5120',
             'amenities'           => 'nullable|array',
-            'amenities.*'         => 'string',
-            'cancellation_policy' => 'required|in:flexible,moderate,strict',
+            'amenities.*'         => 'integer|exists:amenities,id',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'price_per_night.min' => 'Giá tối thiểu là 50,000 VND/đêm',
-            'name.min'            => 'Tên homestay phải có ít nhất 5 ký tự',
-            'description.min'     => 'Mô tả phải có ít nhất 20 ký tự',
+            'price_per_night.min' => 'Giá tối thiểu là 0 VND/đêm',
+            'title.min'           => 'Tên homestay phải có ít nhất 5 ký tự',
+            'title.required'      => 'Vui lòng nhập tiêu đề',
+            'description.min'     => 'Mô tả phải có ít nhất 100 ký tự',
+            'description.required' => 'Vui lòng nhập mô tả',
+            'cover_image.required' => 'Vui lòng tải lên ảnh đại diện',
+            'cover_image.max'     => 'Ảnh không vượt quá 5MB',
+            'room_images.*.max'   => 'Mỗi ảnh không vượt quá 5MB',
         ];
     }
 }

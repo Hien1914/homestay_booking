@@ -1,16 +1,11 @@
-/* ============================================================
-   RESPONSIVE.CSS - Container System & Max-Width Settings
-   Cố định max-width cho các sections, padding đều
-============================================================ */
-
 /* Container Setting - Main Container System */
 .container-setting {
   width: 100%;
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 /* Container Variants */
@@ -19,8 +14,8 @@
   max-width: 1140px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .container-setting-md {
@@ -28,8 +23,8 @@
   max-width: 960px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .container-setting-sm {
@@ -37,11 +32,10 @@
   max-width: 720px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
-/* Section spacing: dùng padding trên/dưới bên trong */
 .section-py {
   padding-top: 70px;
   padding-bottom: 70px;
@@ -60,47 +54,44 @@
   margin: 0;
 }
 
-/* Background Colors */
 .bg-white {
   background-color: #ffffff;
 }
 
 .bg-light-blue {
-  background-color: #e3f2fd; /* Xanh nhạt rõ ràng */
+  background-color: #e3f2fd; 
 }
 
 .bg-light-green {
-  background-color: #e8f5e9; /* Xanh lá nhạt */
+  background-color: #e8f5e9; 
 }
 
 .bg-light-purple {
-  background-color: #f3e5f5; /* Tím nhạt */
+  background-color: #f3e5f5; 
 }
 
 .bg-light-yellow {
-  background-color: #fff9c4; /* Vàng nhạt */
+  background-color: #fff9c4; 
 }
 
 .bg-gradient-blue {
-  background: linear-gradient(135deg, var(--blue-800) 0%, var(--blue-900) 100%);
+  background: linear-gradient(135deg, var(--green-800) 0%, var(--green-900) 100%);
 }
 
 .bg-gradient-primary {
-  background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-700) 100%);
+  background: linear-gradient(135deg, var(--green-600) 0%, var(--green-700) 100%);
 }
 
-/* Responsive Breakpoints */
-/* Màn lớn vừa (≤1440px): nội dung hẹp hơn một bậc, lề ngang rộng hơn base */
 @media (max-width: 1440px) {
   :root {
-    --container-max: 1180px;
+    --container-max: 1240px;
     --container-lg: 1040px;
     --container-md: 900px;
     --container-sm: 680px;
   }
 
   .container-setting {
-    max-width: 1180px;
+    max-width: 1240px;
   }
 
   .container-setting-lg {
@@ -269,3 +260,4 @@
     padding-right: 18px;
   }
 }
+

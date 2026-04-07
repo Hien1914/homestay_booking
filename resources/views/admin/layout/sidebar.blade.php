@@ -1,40 +1,29 @@
 @php
-    $adminUser = session('admin_user', ['name' => 'Admin', 'login_method' => 'key']);
     $navItems = [
         ['route' => 'admin.dashboard', 'icon' => 'bi-grid-1x2-fill', 'label' => 'Tổng quan'],
-        ['route' => 'admin.categories', 'icon' => 'bi-geo-alt-fill', 'label' => 'Điểm đến'],
-        ['route' => 'admin.homestays', 'icon' => 'bi-house-door-fill', 'label' => 'Phòng'],
+        ['route' => 'admin.users', 'icon' => 'bi-people-fill', 'label' => 'Người dùng'],
+        ['route' => 'admin.homestays', 'icon' => 'bi-house-door-fill', 'label' => 'Chỗ nghỉ', 'badge' => $pendingHomestays ?? 0],
         ['route' => 'admin.bookings', 'icon' => 'bi-calendar-check-fill', 'label' => 'Đặt phòng'],
-        ['route' => 'admin.users', 'icon' => 'bi-people-fill', 'label' => 'Khách hàng'],
-        ['route' => 'admin.promotions', 'icon' => 'bi-megaphone-fill', 'label' => 'Ưu đãi'],
-        ['route' => 'admin.blogs', 'icon' => 'bi-journal-richtext', 'label' => 'Blog'],
-        ['route' => 'admin.reviews', 'icon' => 'bi-star-fill', 'label' => 'Đánh giá'],
-        ['route' => 'admin.tickets', 'icon' => 'bi-headset', 'label' => 'Hỗ trợ'],
-        ['route' => 'admin.faqs', 'icon' => 'bi-patch-question-fill', 'label' => 'FAQ'],
+        ['route' => 'admin.amenities', 'icon' => 'bi-stars', 'label' => 'Tiện nghi'],
+        ['route' => 'admin.promotions', 'icon' => 'bi-tag-fill', 'label' => 'Ưu đãi'],
+        ['route' => 'admin.destinations', 'icon' => 'bi-geo-alt-fill', 'label' => 'Điểm đến'],
+        ['route' => 'admin.reports', 'icon' => 'bi-bar-chart-fill', 'label' => 'Báo cáo'],
     ];
 @endphp
 
-<section class="admin-sidebar">
-    <div class="admin-brand">
-        <div class="admin-brand-mark">
-            <i class="bi bi-house-door-fill"></i>
+<section class="admin-sidebar d-flex flex-column">
+    <div class="admin-brand d-flex align-items-center">
+        <div class="admin-brand-mark d-flex align-items-center justify-content-center">
+            <x-logo-icon width="22" height="22" aria-hidden="true" />
         </div>
         <div>
-            <strong>NestAway</strong>
-            <small>Admin Panel</small>
+            <h6 class="m-0 fw-bold">Quản trị viên</h6>
         </div>
     </div>
 
-    <div class="admin-user-card">
-        <div class="admin-user-avatar">{{ strtoupper(substr($adminUser['name'] ?? 'A', 0, 1)) }}</div>
-        <div>
-            <h2>{{ $adminUser['name'] ?? 'Admin' }}</h2>
-        </div>
-    </div>
-
-    <nav class="admin-nav">
+    <nav class="admin-nav d-flex flex-column">
         @foreach ($navItems as $item)
-            <a href="{{ route($item['route']) }}" class="admin-nav-link {{ request()->routeIs($item['route']) ? 'is-active' : '' }}">
+            <a href="{{ route($item['route']) }}" class="admin-nav-link {{ request()->routeIs($item['route'] . '*') ? 'is-active' : '' }}">
                 <i class="bi {{ $item['icon'] }}"></i>
                 <span>{{ $item['label'] }}</span>
             </a>

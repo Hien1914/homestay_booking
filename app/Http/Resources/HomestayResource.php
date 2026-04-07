@@ -22,11 +22,16 @@ class HomestayResource extends JsonResource
             'num_bathrooms'       => $this->num_bathrooms,
             'check_in_time'       => $this->check_in_time,
             'check_out_time'      => $this->check_out_time,
-            'amenities'           => $this->amenities ?? [],
+            'amenities'           => $this->whenLoaded(
+                'amenities',
+                fn () => $this->amenities->pluck('key')->all(),
+                []
+            ),
             'images'              => $this->images ?? [],
             'cancellation_policy' => $this->cancellation_policy,
             'status'              => $this->status,
             'avg_rating'          => $this->avg_rating,
+            'booking_count'       => $this->booking_count,
             'created_at'          => $this->created_at->format('d/m/Y'),
         ];
     }

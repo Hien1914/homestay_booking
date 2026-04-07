@@ -183,7 +183,7 @@
     document.getElementById('profile-email-verified').textContent = user.email_verified ? 'Đã xác minh' : 'Chưa xác minh';
     document.getElementById('profile-role').textContent = roleLabel(user.role);
     document.getElementById('profile-role-detail').textContent = roleLabel(user.role);
-    document.getElementById('profile-active').textContent = user.is_active ? 'Đang hoạt động' : 'Đã khóa';
+    document.getElementById('profile-active').textContent = 'Đang hoạt động';
 
     setAvatar(document.getElementById('profile-avatar'), user);
     setAvatar(document.getElementById('profile-modal-avatar'), user);

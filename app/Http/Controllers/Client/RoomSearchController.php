@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 
 class RoomSearchController extends Controller
 {
+    private const DEFAULT_HOMESTAY_IMAGE = 'https://placehold.co/600x400';
+
     public function index()
     {
         $rooms = $this->roomsForView();
@@ -47,6 +49,24 @@ class RoomSearchController extends Controller
         ];
     }
 
+    public static function amenityKeyFromName(string $name): ?string
+    {
+        $normalized = Str::of($name)->lower()->ascii()->replaceMatches('/[^a-z0-9]+/', ' ')->trim()->value();
+
+        return match ($normalized) {
+            'wi fi', 'wifi', 'internet' => 'wifi',
+            'bai do xe', 'do xe', 'parking' => 'parking',
+            'ho boi', 'be boi', 'pool' => 'pool',
+            'bep', 'bep rieng', 'kitchen' => 'kitchen',
+            'dieu hoa', 'may lanh', 'ac' => 'ac',
+            'may giat', 'washing machine' => 'washing_machine',
+            'cho phep thu cung', 'thu cung', 'pet friendly' => 'pet_friendly',
+            'san vuon', 'vuon', 'garden' => 'garden',
+            'lo suoi', 'fireplace' => 'fireplace',
+            default => null,
+        };
+    }
+
     /**
      * @return list<array<string, mixed>>
      */
@@ -54,9 +74,13 @@ class RoomSearchController extends Controller
     {
         $fromDb = $this->mapHomestaysToCards(
             Homestay::query()
-                ->where('status', 'active')
+                ->where('status', 'available')
                 ->withCount('reviews')
-                ->orderByDesc('avg_rating')
+                ->withAvg('reviews', 'rating')
+                ->with(['amenities', 'images' => fn ($query) => $query->orderByDesc('is_primary')->orderBy('id')])
+                ->orderByDesc('reviews_avg_rating')
+                ->orderByDesc('reviews_count')
+                ->orderBy('price_per_night')
                 ->limit(24)
                 ->get()
         );
@@ -75,32 +99,30 @@ class RoomSearchController extends Controller
     private function mapHomestaysToCards($rows): array
     {
         $out = [];
-        foreach ($rows as $h) {
-            $images = $h->images ?? [];
-            $firstImg = is_array($images) && $images !== [] ? (string) reset($images) : null;
-            $img = $firstImg
-                ? (Str::startsWith($firstImg, ['http://', 'https://']) ? $firstImg : asset('storage/'.$firstImg))
-                : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80';
 
-            $amenities = [];
-            if (is_array($h->amenities)) {
-                foreach ($h->amenities as $k => $v) {
-                    if (is_string($k) && ($v === true || $v === 1 || $v === '1')) {
-                        $amenities[] = $k;
-                    } elseif (is_int($k) && is_string($v)) {
-                        $amenities[] = $v;
-                    }
-                }
-            }
+        foreach ($rows as $h) {
+            $firstImage = $h->images->first()?->image_url;
+            $img = $firstImage
+                ? (Str::startsWith($firstImage, ['http://', 'https://']) ? $firstImage : asset('storage/' . ltrim($firstImage, '/')))
+                : self::DEFAULT_HOMESTAY_IMAGE;
+
+            $amenities = $h->relationLoaded('amenities')
+                ? $h->amenities
+                    ->pluck('name')
+                    ->map(fn ($name) => self::amenityKeyFromName((string) $name))
+                    ->filter()
+                    ->values()
+                    ->all()
+                : [];
 
             $out[] = [
                 'id' => (string) $h->id,
-                'name' => $h->name,
+                'name' => $h->title,
                 'location' => $h->province,
                 'img' => $img,
                 'price_per_night' => (int) $h->price_per_night,
-                'price_label' => number_format((float) $h->price_per_night, 0, ',', '.').'đ',
-                'rating' => $h->avg_rating !== null ? (float) $h->avg_rating : 4.5,
+                'price_label' => number_format((float) $h->price_per_night, 0, ',', '.') . 'đ',
+                'rating' => $h->reviews_avg_rating !== null ? (float) $h->reviews_avg_rating : 4.5,
                 'reviews_count' => (int) $h->reviews_count,
                 'category' => self::inferCategoryFromProvince($h->province),
                 'amenities' => array_values(array_unique($amenities)),
@@ -115,14 +137,14 @@ class RoomSearchController extends Controller
     {
         $p = Str::lower($province);
 
-        $coastal = ['đà nẵng', 'khánh hòa', 'kiên giang', 'bà rịa', 'vũng tàu', 'quảng nam'];
+        $coastal = ['đà nẵng', 'khánh hòa', 'kiên giang', 'bà rịa', 'vũng tàu', 'quảng nam', 'quảng ninh', 'bình thuận'];
         foreach ($coastal as $c) {
             if (Str::contains($p, $c)) {
                 return 'ven-bien';
             }
         }
 
-        $mountain = ['lào cai', 'sơn la', 'hà giang', 'cao bằng', 'lâm đồng'];
+        $mountain = ['lào cai', 'sơn la', 'hà giang', 'cao bằng', 'lâm đồng', 'vĩnh phúc', 'gia lai'];
         foreach ($mountain as $c) {
             if (Str::contains($p, $c)) {
                 return 'mien-nui';
@@ -136,7 +158,7 @@ class RoomSearchController extends Controller
             }
         }
 
-        $water = ['ninh bình', 'huế', 'đồng tháp'];
+        $water = ['ninh bình', 'huế', 'đồng tháp', 'an giang', 'bến tre'];
         foreach ($water as $c) {
             if (Str::contains($p, $c)) {
                 return 'ho-song';
@@ -151,136 +173,47 @@ class RoomSearchController extends Controller
      */
     private static function demoRooms(): array
     {
+        $img = self::DEFAULT_HOMESTAY_IMAGE;
+
         return [
             [
                 'id' => 'd1',
                 'name' => 'Pine Valley Retreat',
                 'location' => 'Đà Lạt, Lâm Đồng',
-                'img' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80',
+                'img' => $img,
                 'price_per_night' => 800_000,
                 'price_label' => '800.000đ',
                 'rating' => 4.9,
                 'reviews_count' => 128,
                 'category' => 'ho-song',
-                'amenities' => ['wifi', 'parking', 'garden', 'ac', 'kitchen'],
+                'amenities' => ['wifi', 'parking', 'garden'],
                 'href' => route('homestay.show', ['id' => 'd1']),
             ],
             [
                 'id' => 'd2',
                 'name' => 'Lantern House Hội An',
                 'location' => 'Hội An, Quảng Nam',
-                'img' => 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80',
+                'img' => $img,
                 'price_per_night' => 1_200_000,
                 'price_label' => '1.200.000đ',
                 'rating' => 4.8,
                 'reviews_count' => 94,
                 'category' => 'ven-bien',
-                'amenities' => ['wifi', 'pool', 'ac', 'kitchen', 'washing_machine'],
+                'amenities' => ['pool', 'wifi', 'parking'],
                 'href' => route('homestay.show', ['id' => 'd2']),
             ],
             [
                 'id' => 'd3',
                 'name' => 'Cloud Nine Sapa Lodge',
-                'location' => 'Sapa, Lào Cai',
-                'img' => 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&q=80',
+                'location' => 'Sa Pa, Lào Cai',
+                'img' => $img,
                 'price_per_night' => 650_000,
                 'price_label' => '650.000đ',
                 'rating' => 4.7,
                 'reviews_count' => 76,
                 'category' => 'mien-nui',
-                'amenities' => ['wifi', 'fireplace', 'parking', 'ac'],
+                'amenities' => ['wifi', 'garden', 'parking'],
                 'href' => route('homestay.show', ['id' => 'd3']),
-            ],
-            [
-                'id' => 'd4',
-                'name' => 'Lotus Valley Retreat',
-                'location' => 'Ninh Bình',
-                'img' => 'https://images.unsplash.com/photo-1613977257365-aaae5a9817ff?w=600&q=80',
-                'price_per_night' => 920_000,
-                'price_label' => '920.000đ',
-                'rating' => 4.9,
-                'reviews_count' => 112,
-                'category' => 'ho-song',
-                'amenities' => ['wifi', 'garden', 'parking', 'kitchen'],
-                'href' => route('homestay.show', ['id' => 'd4']),
-            ],
-            [
-                'id' => 'd5',
-                'name' => 'Sea Breeze Villa',
-                'location' => 'Phú Quốc, Kiên Giang',
-                'img' => 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=600&q=80',
-                'price_per_night' => 1_550_000,
-                'price_label' => '1.550.000đ',
-                'rating' => 4.8,
-                'reviews_count' => 89,
-                'category' => 'sang-trong',
-                'amenities' => ['wifi', 'pool', 'parking', 'ac', 'kitchen', 'washing_machine'],
-                'href' => route('homestay.show', ['id' => 'd5']),
-            ],
-            [
-                'id' => 'd6',
-                'name' => 'Pine Hill Cabin',
-                'location' => 'Mộc Châu, Sơn La',
-                'img' => 'https://images.unsplash.com/photo-1475855581690-80accde3a8a1?w=600&q=80',
-                'price_per_night' => 780_000,
-                'price_label' => '780.000đ',
-                'rating' => 4.7,
-                'reviews_count' => 64,
-                'category' => 'mien-nui',
-                'amenities' => ['wifi', 'fireplace', 'parking', 'pet_friendly'],
-                'href' => route('homestay.show', ['id' => 'd6']),
-            ],
-            [
-                'id' => 'd7',
-                'name' => 'Skyline Loft Hà Nội',
-                'location' => 'Ba Đình, Hà Nội',
-                'img' => 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80',
-                'price_per_night' => 540_000,
-                'price_label' => '540.000đ',
-                'rating' => 4.5,
-                'reviews_count' => 203,
-                'category' => 'thanh-thi',
-                'amenities' => ['wifi', 'ac', 'washing_machine', 'kitchen'],
-                'href' => route('homestay.show', ['id' => 'd7']),
-            ],
-            [
-                'id' => 'd8',
-                'name' => 'District 1 Urban Stay',
-                'location' => 'Quận 1, TP.HCM',
-                'img' => 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
-                'price_per_night' => 680_000,
-                'price_label' => '680.000đ',
-                'rating' => 4.6,
-                'reviews_count' => 156,
-                'category' => 'thanh-thi',
-                'amenities' => ['wifi', 'ac', 'parking'],
-                'href' => route('homestay.show', ['id' => 'd8']),
-            ],
-            [
-                'id' => 'd9',
-                'name' => 'Nha Trang Blue Horizon',
-                'location' => 'Nha Trang, Khánh Hòa',
-                'img' => 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80',
-                'price_per_night' => 1_100_000,
-                'price_label' => '1.100.000đ',
-                'rating' => 4.85,
-                'reviews_count' => 71,
-                'category' => 'ven-bien',
-                'amenities' => ['wifi', 'pool', 'ac', 'garden'],
-                'href' => route('homestay.show', ['id' => 'd9']),
-            ],
-            [
-                'id' => 'd10',
-                'name' => 'Premium Đà Nẵng Ocean',
-                'location' => 'Ngũ Hành Sơn, Đà Nẵng',
-                'img' => 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&q=80',
-                'price_per_night' => 2_400_000,
-                'price_label' => '2.400.000đ',
-                'rating' => 4.95,
-                'reviews_count' => 42,
-                'category' => 'sang-trong',
-                'amenities' => ['wifi', 'pool', 'parking', 'ac', 'kitchen', 'washing_machine', 'garden'],
-                'href' => route('homestay.show', ['id' => 'd10']),
             ],
         ];
     }

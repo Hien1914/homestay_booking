@@ -35,7 +35,7 @@
 }
 
 .homestay-detail-breadcrumb__link:hover {
-    color: var(--blue-600);
+    color: var(--green-600);
 }
 
 .homestay-detail-breadcrumb__current {
@@ -79,7 +79,7 @@
     font-size: clamp(1.4rem, 2.8vw, 1.9rem);
     font-weight: 700;
     color: var(--text-dark);
-    font-family: var(--font-display), sans-serif;
+    font-family: var(--font-google-sans), sans-serif;
     line-height: 1.3;
 }
 
@@ -94,7 +94,7 @@
 }
 
 .homestay-detail-hero__location i {
-    color: var(--blue-500);
+    color: var(--green-500);
     margin-top: 0.2rem;
     flex-shrink: 0;
 }
@@ -118,7 +118,7 @@
 }
 
 .homestay-detail-hero__meta i {
-    color: var(--blue-500);
+    color: var(--green-500);
     width: 1em;
 }
 
@@ -219,12 +219,12 @@
 }
 
 .homestay-detail-tab:hover {
-    color: var(--blue-600);
+    color: var(--green-600);
 }
 
 .homestay-detail-tab.is-active {
-    color: var(--blue-600);
-    border-bottom-color: var(--blue-600);
+    color: var(--green-600);
+    border-bottom-color: var(--green-600);
 }
 
 /* Hero stars */
@@ -243,7 +243,7 @@
 }
 
 .homestay-detail-hero__map-link {
-    color: var(--blue-600);
+    color: var(--green-600);
     font-size: 0.85rem;
     margin-left: 0.5rem;
 }
@@ -272,14 +272,14 @@
 
 .homestay-detail-sidebar-reviews {
     font-size: 0.9rem;
-    color: var(--blue-600);
+    color: var(--green-600);
 }
 
 .homestay-detail-sidebar-link {
     display: inline-block;
     margin-top: 0.5rem;
     font-size: 0.9rem;
-    color: var(--blue-600);
+    color: var(--green-600);
 }
 
 .homestay-detail-sidebar-text {
@@ -325,7 +325,7 @@
 }
 
 .homestay-detail-login-notice a {
-    color: var(--blue-600);
+    color: var(--green-600);
     font-weight: 600;
 }
 
@@ -370,8 +370,8 @@
 }
 
 .homestay-detail-card--booking {
-    border-color: var(--blue-100);
-    background: linear-gradient(180deg, #fff 0%, var(--blue-50) 100%);
+    border-color: var(--green-100);
+    background: linear-gradient(180deg, #fff 0%, var(--green-50) 100%);
 }
 
 .homestay-detail-card__title {
@@ -379,7 +379,7 @@
     font-size: 1.05rem;
     font-weight: 700;
     color: var(--text-dark);
-    font-family: var(--font-display), sans-serif;
+    font-family: var(--font-google-sans), sans-serif;
 }
 
 .homestay-detail-price-row {
@@ -392,7 +392,7 @@
 .homestay-detail-price {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--blue-700);
+    color: var(--green-700);
 }
 
 .homestay-detail-price-unit {
@@ -411,7 +411,7 @@
     align-items: center;
     gap: 0.35rem;
     padding: 0.45rem 0.85rem;
-    background: var(--blue-50);
+    background: var(--green-50);
     color: var(--text-dark);
     border-radius: var(--radius-sm);
     font-size: 0.85rem;
@@ -437,7 +437,7 @@
 }
 
 .homestay-detail-info-list i {
-    color: var(--blue-500);
+    color: var(--green-500);
     width: 1.1rem;
     margin-top: 0.1rem;
 }
@@ -503,8 +503,8 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--blue-100);
-    color: var(--blue-600);
+    background: var(--green-100);
+    color: var(--green-600);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -604,7 +604,7 @@
     justify-content: center;
     transition: background 0.2s;
 }
-.homestay-booking-stepper-btn:hover { background: var(--blue-50); }
+.homestay-booking-stepper-btn:hover { background: var(--green-50); }
 .homestay-booking-stepper input {
     width: 3rem;
     text-align: center;
@@ -629,7 +629,7 @@
     transition: border-color 0.2s;
 }
 .homestay-booking-radio input { display: none; }
-.homestay-booking-radio:has(input:checked) { border-color: var(--blue-500); background: var(--blue-50); color: var(--blue-600); }
+.homestay-booking-radio:has(input:checked) { border-color: var(--green-500); background: var(--green-50); color: var(--green-600); }
 .homestay-booking-breakdown {
     margin: 1rem 0;
     padding-top: 1rem;
@@ -638,7 +638,7 @@
 }
 .homestay-booking-breakdown-row { display: flex; justify-content: space-between; padding: 0.35rem 0; }
 .homestay-booking-breakdown-row--total { font-weight: 700; font-size: 1rem; margin-top: 0.25rem; }
-.homestay-booking-breakdown-row--deposit { color: var(--blue-600); font-weight: 600; }
+.homestay-booking-breakdown-row--deposit { color: var(--green-600); font-weight: 600; }
 .homestay-booking-error {
     padding: 0.6rem 0.75rem;
     margin: 0.75rem 0;
@@ -647,3 +647,4 @@
     border-radius: var(--radius-sm);
     font-size: 0.875rem;
 }
+

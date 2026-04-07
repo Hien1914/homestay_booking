@@ -92,7 +92,7 @@
       <aside class="booking-sidebar">
         <div class="booking-summary-card">
           <a href="{{ route('homestay.show', ['id' => $homestay['id'] ?? '']) }}" class="booking-summary-link">
-            @php $imgs = $homestay['images'] ?? []; $firstImg = $imgs[0] ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80'; @endphp
+            @php $imgs = $homestay['images'] ?? []; $firstImg = $imgs[0] ?? 'https://placehold.co/600x400'; @endphp
             <img src="{{ $firstImg }}" alt="" class="booking-summary-img">
             <div class="booking-summary-info">
               <h3 class="booking-summary-name">{{ $homestay['name'] }}</h3>
