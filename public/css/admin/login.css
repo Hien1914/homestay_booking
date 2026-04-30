@@ -1,56 +1,110 @@
-/* ============ Login Page ============ */
-.admin-login-page {
+body {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--admin-bg);
+}
+
+body > .row.justify-content-center {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--admin-bg);
+    margin: 0;
     padding: 24px;
 }
 
-.admin-login-card {
+body > .row.justify-content-center > .col-md-4 {
     width: 100%;
-    max-width: 1200px;
-    padding: 32px;
-    border-radius: 12px;
+    max-width: 500px;
+    padding: 0;
+}
+
+body > .row.justify-content-center .card {
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
     background: var(--admin-surface);
-    border: 1px solid var(--admin-border);
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    box-shadow: var(--shadow);
 }
 
-.admin-login-card h2 { margin: 0 0 24px; font-size: 1.5rem; font-weight: 700; }
-
-.admin-login-field {
-    position: relative;
-    margin-bottom: 16px;
+body > .row.justify-content-center .card-header,
+body > .row.justify-content-center .card-body,
+body > .row.justify-content-center .card-footer {
+    padding-left: 24px;
+    padding-right: 24px;
 }
 
-.admin-login-field i {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--admin-muted);
+body > .row.justify-content-center .card-header {
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
-.admin-login-input {
-    width: 100%;
-    height: 44px;
-    padding: 0 14px 0 40px;
-    border-radius: 8px;
-    border: 1px solid var(--admin-border);
-    background: #fff;
-    font: inherit;
-    font-size: 0.875rem;
+body > .row.justify-content-center .card-body {
+    padding-top: 24px;
+    padding-bottom: 24px;
 }
 
-.admin-login-alert {
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 16px;
+body > .row.justify-content-center .card-footer {
+    padding-top: 14px;
+    padding-bottom: 14px;
 }
 
-.admin-login-alert.is-error { background: var(--admin-danger-soft); color: var(--admin-danger); }
-.admin-login-alert.is-success { background: var(--admin-success-soft); color: var(--admin-success); }
+.admin-login-header {
+    background: linear-gradient(135deg, var(--green-700), var(--green-600));
+    color: var(--white);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-login-header h4 {
+    margin: 0;
+    font-family: var(--font-google-sans);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: inherit;
+}
+
+body > .row.justify-content-center .form-label {
+    margin-bottom: 0.35rem;
+    color: var(--text-mid);
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+body > .row.justify-content-center .form-control {
+    min-height: 44px;
+    border: 1px solid rgba(13, 40, 90, 0.15);
+    border-radius: 10px;
+    padding: 0.65rem 0.8rem;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+}
+
+body > .row.justify-content-center .form-control:focus {
+    border-color: var(--green-500);
+    box-shadow: 0 0 0 3px rgba(83, 162, 82, 0.12);
+}
+
+body > .row.justify-content-center .btn-primary {
+    border: none;
+    border-radius: 10px;
+    padding: 0.68rem 0.9rem;
+    font-size: 0.92rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--green-700), var(--green-600));
+}
+
+body > .row.justify-content-center .btn-primary:hover,
+body > .row.justify-content-center .btn-primary:focus,
+body > .row.justify-content-center .btn-primary:active {
+    background: linear-gradient(135deg, var(--green-800), var(--green-700));
+}
+
+body > .row.justify-content-center .invalid-feedback,
+body > .row.justify-content-center .card-footer small {
+    font-size: 0.88rem;
+}
+
+body > .row.justify-content-center .card-footer {
+    color: var(--text-mid) !important;
+    background: var(--green-50);
+}

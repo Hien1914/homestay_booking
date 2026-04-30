@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,101 +12,127 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    private function redirectByRole(string $role)
+    {
+        return match ($role) {
+            'admin' => redirect()->route('admin.login'),
+            'host'  => redirect()->route('host.dashboard'),
+            default => redirect()->route('home'),
+        };
+    }
+
+    // Hiển thị form đăng nhập
     public function showLogin()
     {
         if (Auth::check()) {
-            return $this->redirectByRole(Auth::user());
+            $user = Auth::user();
+            return $this->redirectByRole((string) $user->role);
         }
-        return view('clients.auth.login');
+        return view('clients.login');
     }
 
+    // Hiển thị form đăng ký
     public function showRegister()
     {
         if (Auth::check()) {
-            return $this->redirectByRole(Auth::user());
+            $user = Auth::user();
+            return $this->redirectByRole((string) $user->role);
         }
-        return view('clients.auth.register');
+        return view('clients.register');
     }
 
-    public function register(Request $request)
+    // Xử lý đăng ký
+    public function register(RegisterRequest $request)
     {
-        $request->validate([
-            'name'     => 'required|string|min:2|max:100',
-            'email'    => 'required|email|unique:users,email',
-            'phone'    => 'required|string|regex:/^[0-9]{10,11}$/|unique:users,phone',
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'max:32',
-                'regex:/[A-Z]/',      // ít nhất 1 chữ in hoa
-                'regex:/[a-z]/',      // ít nhất 1 chữ thường
-                'regex:/[0-9]/',      // ít nhất 1 số
-                'regex:/[@$!%*?&#]/', // ít nhất 1 ký tự đặc biệt
-                'confirmed',
-            ],
-        ], [
-            'name.required'      => 'Vui lòng nhập họ tên',
-            'email.required'     => 'Vui lòng nhập email',
-            'email.unique'       => 'Email này đã được đăng ký',
-            'phone.required'     => 'Vui lòng nhập số điện thoại',
-            'phone.regex'        => 'Số điện thoại không hợp lệ (10-11 số)',
-            'phone.unique'       => 'Số điện thoại này đã được đăng ký',
-            'password.min'       => 'Mật khẩu phải có ít nhất 8 ký tự',
-            'password.max'       => 'Mật khẩu tối đa 32 ký tự',
-            'password.regex'     => 'Mật khẩu phải có chữ hoa, chữ thường, số và ký tự đặc biệt (@$!%*?&#)',
-            'password.confirmed' => 'Xác nhận mật khẩu không khớp',
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
-            'full_name'         => $request->name,
-            'email'             => $request->email,
-            'phone'             => preg_replace('/\s+/', '', $request->phone),
-            'password_hash'     => Hash::make($request->password),
-            'role'              => 'guest',
-            'is_email_verified' => false,
+            'full_name' => $validated['full_name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'phone' => $validated['phone'],
+            'gender' => $validated['gender'],
+            'birthday' => $validated['birthday'],
+            'role' => 'user',
+            'auth_provider' => 'local',
         ]);
-
-        Auth::login($user);
-
-        return $this->redirectByRole($user)->with('success', 'Đăng ký thành công!');
-    }
-
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required|string',
-        ], [
-            'email.required'    => 'Vui lòng nhập email',
-            'password.required' => 'Vui lòng nhập mật khẩu',
-        ]);
-
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password_hash)) {
-            return back()
-                ->withInput($request->only('email'))
-                ->with('error', 'Email hoặc mật khẩu không đúng');
-        }
 
         Auth::login($user);
         $request->session()->regenerate();
 
-        return $this->redirectByRole($user);
+        return redirect()->route('home')->with('success', 'Đăng ký thành công!');
     }
 
+    // Xử lý đăng nhập
+    public function login(LoginRequest $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            $user = Auth::user();
+
+            if ($user->role === 'admin') {
+                Auth::logout();
+                $request->session()->regenerate();
+
+                return redirect()
+                    ->route('admin.login')
+                    ->with('error', 'Tài khoản Admin chỉ đăng nhập tại trang quản trị bằng Admin key.');
+            }
+
+            return $this->redirectByRole((string) $user->role)->with('success', 'Đăng nhập thành công!');
+        }
+
+        return back()->withErrors([
+            'email' => 'Email hoặc mật khẩu không đúng.',
+        ])->onlyInput('email');
+    }
+
+    // Đăng xuất
     public function logout(Request $request)
     {
         Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        // Không dùng invalidate() để tránh làm văng phiên đăng nhập Admin nếu đang mở song song
+        $request->session()->regenerate(); 
 
-        return redirect()->route('home');
+        return redirect()->route('home')->with('success', 'Đăng xuất thành công.');
     }
 
-    protected function redirectByRole($user)
+    // Cập nhật thông tin cá nhân
+    public function updateProfile(Request $request)
     {
-        return redirect()->route('home');
+        $validated = $request->validate([
+            'full_name' => 'required|string|min:2|max:100',
+            'phone' => 'nullable|string|regex:/^[0-9]{10,11}$/|unique:users,phone,' . Auth::id(),
+            'bank_name' => 'nullable|string|max:120',
+            'bank_account_number' => 'nullable|string|regex:/^[0-9]{6,40}$/',
+            'gender' => 'nullable|in:male,female,other',
+            'birthday' => 'nullable|date|before:today',
+            'avatar_url' => 'nullable|url|max:255',
+        ], [
+            'full_name.required' => 'Vui lòng nhập họ tên',
+            'phone.regex' => 'Số điện thoại không hợp lệ (10-11 số)',
+            'phone.unique' => 'Số điện thoại này đã được đăng ký',
+            'bank_account_number.regex' => 'Số tài khoản chỉ gồm chữ số (6-40 số).',
+            'gender.in' => 'Giới tính không hợp lệ',
+            'birthday.before' => 'Ngày sinh phải trước ngày hiện tại',
+            'avatar_url.url' => 'Link avatar không hợp lệ',
+        ]);
+
+        $user = $request->user();
+        $user->update([
+            'full_name' => $validated['full_name'],
+            'phone' => $validated['phone'] ?? null,
+            'bank_name' => $validated['bank_name'] ?? null,
+            'bank_account_number' => $validated['bank_account_number'] ?? null,
+            'gender' => $validated['gender'] ?? null,
+            'birthday' => $validated['birthday'] ?? null,
+            'avatar_url' => $validated['avatar_url'] ?? null,
+        ]);
+
+        return redirect()
+            ->route('profile.page')
+            ->with('success', 'Cập nhật thông tin thành công.');
     }
 }

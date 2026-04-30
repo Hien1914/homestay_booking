@@ -12,7 +12,20 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Auto-cancel pending bookings at check-in date
+        $schedule->call(function () {
+            \App\Models\Booking::where('status', \App\Models\Booking::STATUS_PENDING)
+                ->whereDate('check_in', '<=', today())
+                ->get()
+                ->each(function ($booking) {
+                    $booking->update(['status' => \App\Models\Booking::STATUS_CANCELLED]);
+                    if ($booking->payment) {
+                        $booking->payment->update([
+                            'payment_status' => \App\Models\Payment::STATUS_FAILED,
+                        ]);
+                    }
+                });
+        })->daily();
     }
 
     /**

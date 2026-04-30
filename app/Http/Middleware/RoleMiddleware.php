@@ -4,20 +4,22 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, string ...$roles): Response
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        $user = $request->user();
-
-        if (! $user) {
-            return response()->json(['success' => false, 'message' => 'Chưa đăng nhập'], 401);
+        if (!Auth::check()) {
+            return $request->expectsJson()
+                ? response()->json(['message' => 'Bạn chưa đăng nhập'], 401)
+                : redirect()->route('login.page');
         }
 
-        if (! in_array($user->role, $roles)) {
-            return response()->json(['success' => false, 'message' => 'Không có quyền thực hiện'], 403);
+        if (!in_array(Auth::user()->role, $roles)) {
+            return $request->expectsJson()
+                ? response()->json(['message' => 'Bạn không có quyền truy cập'], 403)
+                : abort(403, 'Bạn không có quyền truy cập');
         }
 
         return $next($request);

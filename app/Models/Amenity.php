@@ -4,24 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Amenity extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
-    public $timestamps = false;
+    protected $fillable = ['name', 'created_by', 'is_approved'];
 
-    // Automatically manage created_at
-    protected static function booted()
+    protected $casts = [
+        'is_approved' => 'boolean',
+    ];
+
+    public function creator(): BelongsTo
     {
-        static::creating(function ($model) {
-            $model->created_at = $model->freshTimestamp();
-        });
+        return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function homestays()
+    public function homestays(): BelongsToMany
     {
-        return $this->belongsToMany(Homestay::class , 'homestay_amenities', 'amenity_id', 'homestay_id');
+        return $this->belongsToMany(Homestay::class, 'homestay_amenities')
+                    ->withPivot('quantity');
     }
 }

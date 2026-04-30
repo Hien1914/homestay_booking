@@ -3,7 +3,7 @@
 @section('title', 'Câu hỏi thường gặp (FAQ)')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/faq.css') }}">
+<link rel="stylesheet" href="{{ asset('css/clients/faq.css') }}">
 
 @php
 $allFaqs = [
@@ -26,7 +26,6 @@ $allFaqs = [
         ['question' => 'Nếu có vấn đề trong quá trình lưu trú thì sao?', 'answer' => 'Bạn nên liên hệ trực tiếp với bộ phận hỗ trợ của NestAway để được giải quyết nhanh chóng.'],
     ],
     'Tài khoản & hỗ trợ' => [
-        ['question' => 'Tôi quên mật khẩu thì phải làm sao?', 'answer' => 'Bạn có thể sử dụng chức năng "Quên mật khẩu" để đặt lại mật khẩu qua email.'],
         ['question' => 'Làm sao để liên hệ hỗ trợ?',          'answer' => 'Bạn có thể liên hệ qua:<br><ul><li>Hotline: 0967 798 825</li><li>Email: <a href="mailto:support@nestaway.vn">support@nestaway.vn</a></li></ul>'],
     ],
 ];
@@ -50,32 +49,36 @@ if ($search) {
 
 <div class="faq-page-wrapper">
     <!-- Hero Section -->
-    <section class="faq-hero">
+    <section class="faq-hero py-5 text-center bg-light">
         <div class="container">
-            <h1>Câu Hỏi Thường Gặp (FAQ)</h1>
-            <div class="faq-search-box">
-                <form action="{{ route('pages.faq') }}" method="GET">
+            <h1 class="display-5 fw-bold mb-4">Câu Hỏi Thường Gặp (FAQ)</h1>
+            <div class="faq-search-box mx-auto" style="max-width: 600px;">
+                <form action="{{ route('pages.faq') }}" method="GET" class="d-flex shadow-sm rounded-pill overflow-hidden bg-white p-1">
                     @if($topic)
                         <input type="hidden" name="topic" value="{{ $topic }}">
                     @endif
-                    <input type="text" name="q" value="{{ $search }}" placeholder="Bạn đang tìm câu hỏi gì?" autocomplete="off">
-                    <button type="submit" aria-label="Tìm kiếm"><i class="fas fa-search"></i></button>
+                    <input type="text" name="q" value="{{ $search }}" class="form-control border-0 px-4" placeholder="Bạn đang tìm câu hỏi gì?" autocomplete="off">
+                    <button type="submit" class="btn btn-success rounded-pill px-4" aria-label="Tìm kiếm"><i class="fas fa-search"></i></button>
                 </form>
             </div>
         </div>
     </section>
 
     <!-- Main Content -->
-    <div class="container-setting faq-container">
+    <div class="container-setting faq-container py-5">
         <!-- Topics -->
-        <div class="faq-topics-grid">
-            <a href="{{ route('pages.faq', ['q' => $search]) }}" class="faq-topic-card {{ !$topic ? 'active' : '' }}">
-                Tất cả chủ đề
-            </a>
-            @foreach($topics as $t)
-                <a href="{{ route('pages.faq', ['topic' => $t, 'q' => $search]) }}" class="faq-topic-card {{ $topic == $t ? 'active' : '' }}">
-                    {{ $t }}
+        <div class="row g-3 mb-5 justify-content-center">
+            <div class="col-auto">
+                <a href="{{ route('pages.faq', ['q' => $search]) }}" class="btn {{ !$topic ? 'btn-success' : 'btn-outline-success' }} rounded-pill px-4">
+                    Tất cả chủ đề
                 </a>
+            </div>
+            @foreach($topics as $t)
+                <div class="col-auto">
+                    <a href="{{ route('pages.faq', ['topic' => $t, 'q' => $search]) }}" class="btn {{ $topic == $t ? 'btn-success' : 'btn-outline-success' }} rounded-pill px-4">
+                        {{ $t }}
+                    </a>
+                </div>
             @endforeach
         </div>
 

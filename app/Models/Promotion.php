@@ -4,22 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Promotion extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
-
     protected $fillable = [
-        'homestay_id',
-        'title',
-        'discount_percent',
-        'discount_amount',
-        'start_date',
-        'end_date',
-        'min_nights',
-        'is_active',
+        'host_id', 'title', 'discount_percent',
+        'start_date', 'end_date', 'min_nights', 'is_active'
     ];
 
     protected $casts = [
@@ -28,8 +21,13 @@ class Promotion extends Model
         'is_active' => 'boolean',
     ];
 
-    public function homestay()
+    public function homestays(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->belongsTo(Homestay::class);
+        return $this->hasMany(Homestay::class);
+    }
+
+    public function host(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'host_id');
     }
 }

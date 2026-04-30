@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Homestay extends Model
@@ -11,108 +14,97 @@ class Homestay extends Model
     use HasFactory;
 
     protected $fillable = [
-        'room_code',
-        'title',
-        'slug',
-        'type',
-        'description',
-        'address',
-        'province',
-        'ward',
-        'destination_id',
-        'price_per_night',
-        'max_guests',
-        'status',
+        'owner_id', 'destination_id', 'promotion_id', 'title', 'slug', 'description',
+        'address', 'ward', 'province', 'price_per_night', 'max_guests',
+        'status', 'is_approved'
+    ];
+
+    protected $casts = [
+        'is_approved' => 'boolean',
+        'price_per_night' => 'integer',
     ];
 
     protected static function booted()
     {
         static::creating(function ($homestay) {
-            if (empty($homestay->room_code)) {
-                $homestay->room_code = self::generateRoomCode();
-            }
             if (empty($homestay->slug)) {
-                $homestay->slug = self::generateSlug($homestay->title);
-            }
-        });
-
-        static::updating(function ($homestay) {
-            if ($homestay->isDirty('title')) {
-                $homestay->slug = self::generateSlug($homestay->title);
+                $homestay->slug = Str::slug($homestay->title);
             }
         });
     }
 
-    public static function generateRoomCode(): string
+    public function owner(): BelongsTo
     {
-        do {
-            $code = 'HT' . now()->format('ymd') . strtoupper(Str::random(4));
-        } while (self::where('room_code', $code)->exists());
-
-        return $code;
+        return $this->belongsTo(User::class, 'owner_id');
     }
 
-    public static function generateSlug(string $title): string
-    {
-        $slug = Str::slug($title);
-        $originalSlug = $slug;
-        $count = 1;
-
-        while (self::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $count;
-            $count++;
-        }
-
-        return $slug;
-    }
-
-    public function amenities()
-    {
-        return $this->belongsToMany(Amenity::class, 'homestay_amenities', 'homestay_id', 'amenity_id');
-    }
-
-    public function promotions()
-    {
-        return $this->hasMany(Promotion::class);
-    }
-
-    public function bookings()
-    {
-        return $this->hasMany(Booking::class);
-    }
-
-    public function reviews()
-    {
-        return $this->hasMany(Review::class);
-    }
-
-    public function images()
-    {
-        return $this->hasMany(HomestayImage::class);
-    }
-
-    public function destination()
+    public function destination(): BelongsTo
     {
         return $this->belongsTo(Destination::class);
     }
 
-    public function isPublished()
+    public function amenities(): BelongsToMany
     {
-        return $this->status === 'published';
+        return $this->belongsToMany(Amenity::class, 'homestay_amenities')
+                    ->withPivot('quantity');
     }
 
-    public function isDraft()
+    public function images(): HasMany
     {
-        return $this->status === 'draft';
+        return $this->hasMany(HomestayImage::class);
     }
 
-    public function getAverageRatingAttribute()
+    public function rooms(): HasMany
     {
-        return $this->reviews()->avg('rating') ?? 0;
+        return $this->hasMany(HomestayRoom::class);
     }
 
-    public function getTotalBookingsAttribute()
+    public function promotion(): BelongsTo
     {
-        return $this->bookings()->count();
+        return $this->belongsTo(Promotion::class);
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function favorites(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
+    }
+
+    public function getActivePromotionAttribute()
+    {
+        $promotion = $this->promotion;
+        if ($promotion && $promotion->is_active) {
+            $now = now();
+            $start = \Carbon\Carbon::parse($promotion->start_date)->startOfDay();
+            $end = \Carbon\Carbon::parse($promotion->end_date)->endOfDay();
+            
+            if ($now->between($start, $end)) {
+                return $promotion;
+            }
+        }
+        return null;
+    }
+
+    public function getDiscountedPriceAttribute()
+    {
+        $promotion = $this->active_promotion;
+        if (!$promotion) {
+            return $this->price_per_night;
+        }
+        return (int) round($this->price_per_night * (1 - $promotion->discount_percent / 100));
+    }
+
+    public function getRoomsArrayAttribute()
+    {
+        return $this->rooms->pluck('quantity', 'feature_type')->toArray();
     }
 }

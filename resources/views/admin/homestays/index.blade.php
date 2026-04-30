@@ -3,84 +3,116 @@
 @section('title', 'Quản lý chỗ nghỉ')
 
 @section('content')
-<div class="admin-page-header">
+<div class="admin-page-header mb-4">
     <div class="admin-page-header-content">
-        <h1 class="admin-page-title">Quản lý chỗ nghỉ</h1>
-        <p class="admin-page-subtitle">Quản lý tất cả homestay trong hệ thống</p>
-    </div>
-    <div class="admin-page-actions">
-        <button type="button" class="admin-btn admin-btn-outline" onclick="exportHomestays()">
-            <i class="bi bi-download"></i>
-            Xuất Excel
-        </button>
-        <a href="{{ route('admin.homestays.create') }}" class="admin-btn admin-btn-primary">
-            <i class="bi bi-plus-lg"></i>
-            Tạo mới
-        </a>
+        <h1 class="admin-page-title h3 fw-bold mb-1">@yield('title')</h1>
+        <p class="admin-page-subtitle text-muted small mb-0">Quản lý tất cả homestay trong hệ thống</p>
     </div>
 </div>
 
 <!-- Statistics -->
-<div class="admin-stats-grid admin-stats-grid-3">
-    <div class="admin-stat-card">
-        <div class="admin-stat-icon admin-stat-icon-primary">
-            <i class="bi bi-house-door"></i>
-        </div>
-        <div class="admin-stat-content">
-            <div class="admin-stat-value">{{ $stats['total'] }}</div>
-            <div class="admin-stat-label">Tổng chỗ nghỉ</div>
-        </div>
-    </div>
-    
-    <div class="admin-stat-card">
-        <div class="admin-stat-icon admin-stat-icon-success">
-            <i class="bi bi-check-circle"></i>
-        </div>
-        <div class="admin-stat-content">
-            <div class="admin-stat-value">{{ $stats['available'] }}</div>
-            <div class="admin-stat-label">Đang hoạt động</div>
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 mb-4">
+    <div class="col">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-body d-flex align-items-center p-4">
+                <div class="admin-stat-icon bg-primary-subtle text-primary me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                    <i class="bi bi-house-door fs-4"></i>
+                </div>
+                <div>
+                    <div class="h4 fw-bold mb-0 text-dark">{{ $stats['total'] }}</div>
+                    <div class="text-muted small fw-semibold">Tổng chỗ nghỉ</div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="admin-stat-card">
-        <div class="admin-stat-icon admin-stat-icon-warning">
-            <i class="bi bi-star"></i>
+    <div class="col">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-body d-flex align-items-center p-4">
+                <div class="admin-stat-icon bg-success-subtle text-success me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                    <i class="bi bi-check-circle fs-4"></i>
+                </div>
+                <div>
+                    <div class="h4 fw-bold mb-0 text-dark">{{ $stats['available'] }}</div>
+                    <div class="text-muted small fw-semibold">Đang hoạt động</div>
+                </div>
+            </div>
         </div>
-        <div class="admin-stat-content">
-            <div class="admin-stat-value">{{ number_format($stats['avgRating'], 1) }}</div>
-            <div class="admin-stat-label">Điểm trung bình</div>
+    </div>
+    <div class="col">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-body d-flex align-items-center p-4">
+                <div class="admin-stat-icon bg-warning-subtle text-warning me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                    <i class="bi bi-star fs-4"></i>
+                </div>
+                <div>
+                    <div class="h4 fw-bold mb-0 text-dark">{{ number_format($stats['avgRating'], 1) }}</div>
+                    <div class="text-muted small fw-semibold">Điểm TB</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-body d-flex align-items-center p-4">
+                <div class="admin-stat-icon bg-info-subtle text-info me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                    <i class="bi bi-clock-history fs-4"></i>
+                </div>
+                <div>
+                    <div class="h4 fw-bold mb-0 text-dark">{{ $stats['pending_approval'] ?? 0 }}</div>
+                    <div class="text-muted small fw-semibold">Chờ duyệt</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Filters -->
-<div class="admin-card admin-filters-card">
-    <div class="admin-filters-row">
-        <div class="admin-search-box">
-            <i class="bi bi-search"></i>
-            <input type="text" id="searchHomestay" class="admin-search-input" placeholder="Tìm kiếm theo tên, mã homestay...">
-        </div>
+<div class="card border-0 shadow-sm mb-4 rounded-3">
+    <div class="card-body p-4">
+        <form method="GET" action="{{ route('admin.homestays') }}" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Từ ngày</label>
+                <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Đến ngày</label>
+                <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-secondary">Trạng thái</label>
+                <select name="approval_status" class="form-select">
+                    <option value="">Tất cả</option>
+                    <option value="approved" {{ request('approval_status') == 'approved' ? 'selected' : '' }}>Đã duyệt</option>
+                    <option value="pending" {{ request('approval_status') == 'pending' ? 'selected' : '' }}>Chờ duyệt</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="admin-filter-btn w-100 justify-content-center">Lọc</button>
+                <a href="{{ route('admin.homestays') }}" class="admin-filter-clear-btn w-100 justify-content-center">Xóa</a>
+            </div>
+        </form>
     </div>
 </div>
 
 <!-- Homestays Table -->
-<div class="admin-card">
-    <div class="admin-card-header">
-        <h3><i class="bi bi-house-door me-2"></i>Danh sách chỗ nghỉ</h3>
+<div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+    <div class="card-header bg-white py-3 border-light-subtle d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold h6">
+            <i class="bi bi-house-door me-2 text-primary"></i>Danh sách chỗ nghỉ
+        </h5>
     </div>
-    <div class="admin-card-body">
+    <div class="card-body p-0">
         <div class="admin-table-responsive">
-            <table class="admin-table" id="homestaysTable">
+            <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>Chỗ nghỉ</th>
-                        <th>Tỉnh/Thành phố</th>
-                        <th>Phường/Xã</th>
-                        <th>Giá/đêm</th>
-                        <th>Đánh giá</th>
-                        <th>Lượt đặt</th>
-                        <th>Ngày tạo</th>
-                        <th>Thao tác</th>
+                        <th class="ps-4">Chỗ nghỉ</th>
+                        <th>Chủ sở hữu</th>
+                        <th>Địa điểm</th>
+                        <th class="text-center">Giá/đêm</th>
+                        <th class="text-center">Đánh giá</th>
+                        <th class="text-center">Duyệt</th>
+                        <th class="text-center">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -90,99 +122,194 @@
                             $coverImage = $primaryImage ? $primaryImage->image_url : ($homestay->images->first()?->image_url ?? null);
                             $avgRating = $homestay->reviews_avg_rating ?? 0;
                         @endphp
-                        <tr data-status="{{ $homestay->status }}">
-                            <td>
-                                <div class="admin-homestay-cell">
-                                    <div class="admin-homestay-thumb">
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="admin-thumbnail me-3">
                                         @if($coverImage)
-                                            <img src="{{ asset('storage/' . $coverImage) }}" alt="{{ $homestay->title }}">
+                                            <img src="{{ asset('storage/' . $coverImage) }}" class="w-100 h-100 object-fit-cover">
                                         @else
-                                            <div class="admin-homestay-thumb-placeholder">
-                                                <i class="bi bi-house"></i>
-                                            </div>
+                                            <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted"><i class="bi bi-image"></i></div>
                                         @endif
                                     </div>
-                                    <div class="admin-homestay-info">
-                                        <span class="admin-homestay-name">{{ $homestay->title ?? 'Chưa có tên' }}</span>
-                                        <span class="admin-homestay-code">{{ $homestay->room_code }}</span>
-                                    </div>
+                                    <div class="fw-bold text-dark small text-truncate" style="max-width: 180px;">{{ $homestay->title }}</div>
                                 </div>
                             </td>
-                            <td>{{ $homestay->province ?? 'Chưa xác định' }}</td>
-                            <td>{{ $homestay->ward ?? 'Chưa xác định' }}</td>
-                            <td>{{ number_format($homestay->price_per_night ?? 0) }}đ</td>
+                            <td><div class="small fw-medium">{{ $homestay->owner->full_name ?? '-' }}</div></td>
                             <td>
-                                <div class="admin-rating">
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <span>{{ number_format($avgRating, 1) }}</span>
+                                <div class="small">{{ $homestay->province }}</div>
+                                <div class="text-muted" style="font-size: 10px;">{{ Str::limit($homestay->address, 30) }}</div>
+                            </td>
+                            <td class="text-center">
+                                @if($homestay->discounted_price < $homestay->price_per_night)
+                                    <div class="fw-bold text-success">{{ number_format($homestay->discounted_price) }}đ</div>
+                                    <small class="text-muted text-decoration-line-through">{{ number_format($homestay->price_per_night) }}đ</small>
+                                @else
+                                    <div class="fw-bold">{{ number_format($homestay->price_per_night) }}đ</div>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <div class="text-warning small fw-bold d-flex align-items-center justify-content-center gap-1">
+                                    <i class="bi bi-star-fill"></i>{{ number_format($avgRating, 1) }}
                                 </div>
                             </td>
-                            <td>{{ $homestay->bookings_count ?? 0 }}</td>
-                            <td>{{ optional($homestay->created_at)->format('d/m/Y') }}</td>
-                            <td>
-                                <div class="admin-actions d-flex gap-1">
-                                    <a href="{{ route('admin.homestays.calendar', $homestay) }}" class="admin-action-btn" title="Xem lịch đặt phòng">
-                                        <i class="bi bi-calendar3"></i>
-                                    </a>
-                                    <a href="{{ route('admin.homestays.edit', $homestay) }}" class="admin-action-btn" title="Chỉnh sửa">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <form action="{{ route('admin.homestays.destroy', $homestay) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa homestay này?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="admin-action-btn admin-action-btn-danger" title="Xóa">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                            <td class="text-center">
+                                @if($homestay->is_approved)
+                                    <span class="admin-badge admin-badge-success">Đã duyệt</span>
+                                @else
+                                    <span class="admin-badge admin-badge-pending">Chờ duyệt</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <div class="admin-actions d-flex justify-content-center gap-1">
+                                    <button class="admin-action-btn" data-bs-toggle="modal" data-bs-target="#homestayModal{{ $homestay->id }}" title="Xem chi tiết"><i class="bi bi-eye"></i></button>
+                                    @if(!$homestay->is_approved)
+                                        <form action="{{ route('admin.homestays.approve', $homestay) }}" method="POST" class="d-inline">
+                                            @csrf @method('PUT')
+                                            <button type="submit" class="admin-action-btn" style="color: var(--admin-success); border-color: var(--admin-success);" title="Duyệt"><i class="bi bi-check-lg"></i></button>
+                                        </form>
+                                    @endif
+                                    <form action="{{ route('admin.homestays.destroy', $homestay) }}" method="POST" class="d-inline" onsubmit="return confirm('Xóa homestay?');">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="admin-action-btn admin-action-btn-danger" title="Xóa"><i class="bi bi-trash"></i></button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="8" class="text-center text-muted py-4">
-                                <i class="bi bi-house-door"></i> Chưa có chỗ nghỉ nào
-                            </td>
-                        </tr>
+                        <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có dữ liệu.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        <div class="p-3 border-top d-flex justify-content-center">
+            {{ $homestays->links() }}
+        </div>
     </div>
 </div>
+
+@foreach($homestays as $homestay)
+    <div class="modal fade" id="homestayModal{{ $homestay->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="modal-title fw-bold">Chi tiết homestay: {{ $homestay->title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-5">
+                            @if($homestay->images->count() > 0)
+                                <div id="carousel{{ $homestay->id }}" class="carousel slide" data-bs-ride="carousel">
+                                    <div class="carousel-inner rounded-4 shadow-sm overflow-hidden">
+                                        @foreach($homestay->images as $idx => $img)
+                                            <div class="carousel-item {{ $idx == 0 ? 'active' : '' }}">
+                                                <img src="{{ asset('storage/' . $img->image_url) }}" class="d-block w-100 object-fit-cover" style="height: 350px;">
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    @if($homestay->images->count() > 1)
+                                        <button class="carousel-control-prev" data-bs-target="#carousel{{ $homestay->id }}" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                                        <button class="carousel-control-next" data-bs-target="#carousel{{ $homestay->id }}" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+                                    @endif
+                                </div>
+                            @endif
+                            <div class="mt-4 p-4 bg-light rounded-4">
+                                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-person-circle me-2"></i>Chủ sở hữu</h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="admin-user-avatar-sm me-3 bg-white shadow-sm" style="width: 45px; height: 45px; font-size: 1.2rem;">
+                                        {{ substr($homestay->owner->full_name, 0, 1) }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">{{ $homestay->owner->full_name }}</div>
+                                        <div class="small text-muted">{{ $homestay->owner->email }}</div>
+                                        <div class="small text-muted">{{ $homestay->owner->phone ?? 'Chưa cập nhật SĐT' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="card border-0 bg-light rounded-4 p-4 h-100">
+                                <h6 class="fw-bold text-primary text-uppercase small mb-3" style="letter-spacing: 1px;">Thông tin tổng quan</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <div class="small text-secondary mb-1">Địa chỉ cụ thể</div>
+                                        <div class="fw-bold text-dark mb-3">{{ $homestay->address }}, {{ $homestay->ward }}, {{ $homestay->district }}, {{ $homestay->province }}</div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="small text-secondary mb-1">Giá thuê mỗi đêm</div>
+                                        <div class="d-flex align-items-baseline gap-2">
+                                            @if($homestay->discounted_price < $homestay->price_per_night)
+                                                <div class="h4 fw-bold text-success mb-0">{{ number_format($homestay->discounted_price) }}đ</div>
+                                                <div class="text-muted text-decoration-line-through small">{{ number_format($homestay->price_per_night) }}đ</div>
+                                                <span class="badge bg-danger-subtle text-danger small rounded-pill">-{{ $homestay->promotion->discount_percent }}%</span>
+                                            @else
+                                                <div class="h4 fw-bold text-dark mb-0">{{ number_format($homestay->price_per_night) }}đ</div>
+                                            @endif
+                                            <span class="small text-muted">/ đêm</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="small text-secondary mb-1">Sức chứa tối đa</div>
+                                        <div class="fw-bold text-dark"><i class="bi bi-people me-2"></i>{{ $homestay->max_guests }} người</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="small text-secondary mb-1">Đánh giá trung bình</div>
+                                        <div class="fw-bold text-dark"><i class="bi bi-star-fill text-warning me-2"></i>{{ number_format($avgRating, 1) }} / 5</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="small text-secondary mb-1">Số lượt đánh giá</div>
+                                        <div class="fw-bold text-dark"><i class="bi bi-chat-dots me-2"></i>{{ $homestay->reviews_count ?? 0 }} lượt</div>
+                                    </div>
+                                </div>
+
+                                <h6 class="fw-bold text-primary text-uppercase small mt-4 mb-3" style="letter-spacing: 1px;">Mô tả chỗ nghỉ</h6>
+                                <div class="text-muted small" style="line-height: 1.6; max-height: 150px; overflow-y: auto;">
+                                    {!! nl2br(e($homestay->description)) !!}
+                                </div>
+
+                                <h6 class="fw-bold text-primary text-uppercase small mt-4 mb-3" style="letter-spacing: 1px;">Tiện nghi cung cấp</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @forelse($homestays->firstWhere('id', $homestay->id)->amenities as $amenity)
+                                        <span class="admin-badge admin-badge-success py-1 px-3" style="font-size: 0.75rem;">
+                                            <i class="bi bi-check2-circle me-1"></i>{{ $amenity->name }}
+                                        </span>
+                                    @empty
+                                        <span class="text-muted small">Chưa có tiện nghi nào được cập nhật.</span>
+                                    @endforelse
+                                </div>
+
+                                <h6 class="fw-bold text-primary text-uppercase small mt-4 mb-3" style="letter-spacing: 1px;">Cấu trúc phòng</h6>
+                                <div class="row g-2">
+                                    @php $roomTypes = \App\Models\HomestayRoom::ROOM_TYPES; @endphp
+                                    @foreach($homestay->rooms_array as $type => $qty)
+                                        @if($qty > 0 && isset($roomTypes[$type]))
+                                            <div class="col-md-6 col-xl-4">
+                                                <div class="bg-white border rounded-3 p-2 text-center">
+                                                    <div class="small text-muted">{{ $roomTypes[$type] }}</div>
+                                                    <div class="fw-bold text-dark">{{ $qty }} phòng</div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0 gap-2">
+                    <button class="admin-filter-clear-btn px-4" data-bs-dismiss="modal">Đóng cửa sổ</button>
+                    @if(!$homestay->is_approved)
+                        <form action="{{ route('admin.homestays.approve', $homestay) }}" method="POST">
+                            @csrf @method('PUT')
+                            <button type="submit" class="admin-create-btn px-4">Duyệt chỗ nghỉ này</button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+@endforeach
 @endsection
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchHomestay');
-    const statusFilter = document.getElementById('statusFilter');
-    const table = document.getElementById('homestaysTable');
-    const rows = table.querySelectorAll('tbody tr');
-    
-    function filterTable() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const statusValue = statusFilter.value;
-        
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            const status = row.dataset.status;
-            
-            const matchesSearch = text.includes(searchTerm);
-            const matchesStatus = !statusValue || status === statusValue;
-            
-            row.style.display = matchesSearch && matchesStatus ? '' : 'none';
-        });
-    }
-    
-    searchInput.addEventListener('input', filterTable);
-    statusFilter.addEventListener('change', filterTable);
-});
 
-function exportHomestays() {
-    showToast('Đang xuất danh sách chỗ nghỉ...', 'info');
-    setTimeout(() => {
-        showToast('Xuất Excel thành công!', 'success');
-    }, 1500);
-}
-</script>
-@endpush

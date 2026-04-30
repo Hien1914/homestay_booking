@@ -29,31 +29,29 @@
   <div class="container-setting position-relative" style="z-index: 2;">
     <div class="row hero-row align-items-center justify-content-center py-5">
       <div class="col-12 col-lg-11 col-xl-10 text-center">
-        <h1 class="hero-title display-3 fw-light text-white mb-3">
-          Tìm <span class="text-soft-blue">tổ ấm</span> của bạn<br/>ở mọi nơi trên đất Việt
+        <h1 class="hero-title display-3 text-white mb-3">
+          Tìm tổ ấm của bạn <br> ở mọi nơi trên đất Việt
         </h1>
 
         <p class="hero-sub lead text-white text-opacity-85 mb-4 mx-auto" style="max-width: 600px;">
           Khám phá những homestay độc đáo, gần gũi thiên nhiên và đầy cảm hứng cho chuyến đi của bạn.
         </p>
 
-        @include('clients.partials.booking-form')
       </div>
     </div>
   </div>
 </section>
 
-<section class="section-py bg-white reveal about-section">
-  <div class="container-setting">
+<section class="container-setting py-5">
     <div class="row g-5 g-lg-5 align-items-center">
       <div class="col-lg-6">
         <img src="{{ asset('img/anh_about.png') }}" alt="NestAway trải nghiệm homestay" class="about-img-main w-100" width="700" height="875" loading="lazy">
       </div>
       <div class="col-lg-6 about-section-copy">
-        <h4 class="text-primary text-uppercase fw-bold mb-2">Về NestAway</h4>
-        <h2 class="display-5 fw-light mb-4 about-section-title" style="font-family: 'Google Sans', sans-serif;">
+        <h4 class="text-uppercase fw-bold mb-2" style="color: var(--green-700)">Về NestAway</h4>
+        <h3 class="display-6 mb-4 about-section-title" style="font-weight: 500; font-family: 'Google Sans', sans-serif;">
           Nền tảng kết nối cho người Việt du lịch
-        </h2>
+        </h3>
         <p class="text-muted mb-4 about-section-lead">
           NestAway kết nối du khách với những homestay có cá tính rõ ràng, thông tin minh bạch và trải nghiệm gần gũi hơn với địa phương.
         </p>
@@ -95,46 +93,18 @@
           </a>
       </div>
       </div>
-    </div>
   </div>
 </section>
 
-@include('clients.partials.home-categories')
+@include('clients.layout.partials.destination-carousel')
 
-@include('clients.partials.home-featured-rooms')
+@include('clients.layout.partials.homestay-carousel')
 
-<section class="section-py bg-light-blue reveal">
-  <div class="container-setting">
-    <div class="text-center mb-5">
-      <h4 class="text-primary text-uppercase fw-bold mb-2">Tiện nghi</h4>
-      <h2 class="display-6 fw-light mb-3" style="font-family: 'Google Sans', sans-serif;">
-        Những tiện ích được khách<br/><span class="text-soft-blue">ưu tiên nhiều nhất</span>
-      </h2>
-    </div>
-
-    <div class="row g-4">
-      @foreach(($popularAmenities ?? []) as $amenity)
-        <div class="col-md-6 col-lg-3">
-          <div class="amen-card card border bg-white h-100">
-            <div class="card-body">
-              <div class="amen-icon mb-3">{{ $amenity['icon'] }}</div>
-              <h6 class="fw-semibold mb-2">{{ $amenity['name'] }}</h6>
-              <p class="small text-muted mb-2">{{ $amenity['description'] }}</p>
-              <span class="amen-usage">{{ $amenity['usage_count'] }} homestay đang có</span>
-            </div>
-          </div>
-        </div>
-      @endforeach
-    </div>
-  </div>
-</section>
-
-<section class="section-py bg-white reveal">
-  <div class="container-setting">
+<section class="container-setting bg-white">
     <div class="text-center mb-5">
       <h4 class="text-success text-uppercase fw-bold mb-2">Quy trình</h4>
-      <h2 class="display-6 fw-light" style="font-family: 'Google Sans', sans-serif;">
-        Đặt phòng chỉ với<br/><span class="text-soft-blue">3 bước đơn giản</span>
+      <h2 class="display-6 fw-bold" style="font-family: 'Google Sans', sans-serif;">
+        Đặt phòng chỉ với<br/>3 bước đơn giản
       </h2>
     </div>
 
@@ -161,66 +131,22 @@
         </div>
       </div>
     </div>
-  </div>
 </section>
 
-<section class="section-py reveal testimonials-showcase">
-  <div class="container-setting">
-    <div class="tsm-shell" id="testimonial-slider">
-      <div class="tsm-top">
-        <h3 class="tsm-title">Những đánh giá của khách hàng</h3>
-        <div class="tsm-nav">
-          <button type="button" class="tsm-nav-btn" data-tsm-prev aria-label="Đánh giá trước">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <button type="button" class="tsm-nav-btn" data-tsm-next aria-label="Đánh giá tiếp theo">
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-        </div>
-      </div>
+@include('clients.layout.partials.testimonial-carousel')
 
-      <div class="tsm-viewport" data-tsm-viewport>
-        <div class="tsm-track" data-tsm-track>
-          @foreach(($testimonials ?? []) as $t)
-            <article class="tsm-slide">
-              <div class="tsm-card">
-                <div class="tsm-avatar">{{ $t['avatar'] }}</div>
-                <div class="tsm-head">
-                  <div>
-                    <div class="tsm-name">{{ $t['name'] }}</div>
-                    <div class="tsm-role">{{ $t['role'] }}</div>
-                  </div>
-                  <div class="tsm-stars" aria-label="{{ $t['rating'] }} sao">
-                    @for($i = 0; $i < $t['rating']; $i++)
-                      <img src="{{ asset('img/icon/star.svg') }}" alt="" class="tsm-star-icon">
-                    @endfor
-                  </div>
-                </div>
-                <p class="tsm-comment">{{ $t['comment'] }}</p>
-              </div>
-            </article>
-          @endforeach
-        </div>
-      </div>
-
-      <div class="tsm-dots" data-tsm-dots></div>
-    </div>
-  </div>
-</section>
-
-<section class="section-py bg-white text-black text-center reveal">
-  <div class="container-setting-md">
+<section class="container-setting py-5 bg-white text-black text-center">
     <h2 class="display-5 fw-light mb-3" style="font-family: 'Google Sans', sans-serif;">
       Bắt đầu hành trình của bạn ngay hôm nay
     </h2>
     <p class="lead mb-4">
       Từ những căn nhà nhỏ giữa đồi thông đến villa sát biển, mọi lựa chọn đều đang sẵn sàng trong hệ thống.
     </p>
-    <a href="{{ route('rooms.search') }}" class="btn btn-primary btn-lg rounded-pill px-5 fw-semibold">Tìm homestay ngay →</a>
-  </div>
+    <a href="{{ route('pages.search') }}" class="btn btn-success btn-lg rounded-pill px-5 fw-semibold shadow-sm">Tìm homestay ngay →</a>
 </section>
 
 @push('scripts')
+<script src="{{ asset('js/carousel.js') }}"></script>
 <script>
 (function() {
   const slides = document.querySelectorAll('.hero-slide');
@@ -235,7 +161,6 @@
   setInterval(nextSlide, 3000);
 })();
 
-const reveals = document.querySelectorAll('.reveal');
 const observer = new IntersectionObserver(entries => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -244,120 +169,6 @@ const observer = new IntersectionObserver(entries => {
     }
   });
 }, { threshold: 0.1 });
-
-reveals.forEach(reveal => observer.observe(reveal));
-
-(function () {
-  const slider = document.getElementById('testimonial-slider');
-  if (!slider) return;
-
-  const viewport = slider.querySelector('[data-tsm-viewport]');
-  const track = slider.querySelector('[data-tsm-track]');
-  const slides = Array.from(slider.querySelectorAll('.tsm-slide'));
-  const prevBtn = slider.querySelector('[data-tsm-prev]');
-  const nextBtn = slider.querySelector('[data-tsm-next]');
-  const dotsWrap = slider.querySelector('[data-tsm-dots]');
-  if (!viewport || !track || slides.length === 0) return;
-
-  const perView = () => (window.innerWidth < 768 ? 1 : 3);
-  let index = 0;
-  let autoTimer = null;
-  let startX = 0;
-  let dragDelta = 0;
-  let dragging = false;
-
-  const buildDots = () => {
-    if (!dotsWrap) return;
-    const pages = Math.max(1, slides.length - perView() + 1);
-    dotsWrap.innerHTML = '';
-    for (let i = 0; i < pages; i++) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'tsm-dot' + (i === index ? ' is-active' : '');
-      btn.setAttribute('aria-label', 'Tới đánh giá ' + (i + 1));
-      btn.addEventListener('click', () => {
-        index = i;
-        update(true);
-        startAuto();
-      });
-      dotsWrap.appendChild(btn);
-    }
-  };
-
-  const updateDots = () => {
-    if (!dotsWrap) return;
-    dotsWrap.querySelectorAll('.tsm-dot').forEach((dot, i) => {
-      dot.classList.toggle('is-active', i === index);
-    });
-  };
-
-  const update = (animate = true) => {
-    const max = Math.max(0, slides.length - perView());
-    index = Math.max(0, Math.min(index, max));
-    const step = slides[0].offsetWidth + 20;
-    track.style.transition = animate ? 'transform .45s ease' : 'none';
-    track.style.transform = `translateX(-${index * step}px)`;
-    updateDots();
-  };
-
-  const next = () => {
-    const max = Math.max(0, slides.length - perView());
-    index = index >= max ? 0 : index + 1;
-    update(true);
-  };
-
-  const prev = () => {
-    const max = Math.max(0, slides.length - perView());
-    index = index <= 0 ? max : index - 1;
-    update(true);
-  };
-
-  const startAuto = () => {
-    stopAuto();
-    autoTimer = setInterval(next, 3600);
-  };
-
-  const stopAuto = () => {
-    if (!autoTimer) return;
-    clearInterval(autoTimer);
-    autoTimer = null;
-  };
-
-  prevBtn?.addEventListener('click', () => { prev(); startAuto(); });
-  nextBtn?.addEventListener('click', () => { next(); startAuto(); });
-
-  viewport.addEventListener('mouseenter', stopAuto);
-  viewport.addEventListener('mouseleave', startAuto);
-  viewport.addEventListener('touchstart', (e) => {
-    dragging = true;
-    startX = e.touches[0].clientX;
-    dragDelta = 0;
-    stopAuto();
-    track.style.transition = 'none';
-  }, { passive: true });
-  viewport.addEventListener('touchmove', (e) => {
-    if (!dragging) return;
-    dragDelta = e.touches[0].clientX - startX;
-    const step = slides[0].offsetWidth + 20;
-    track.style.transform = `translateX(-${index * step - dragDelta}px)`;
-  }, { passive: true });
-  viewport.addEventListener('touchend', () => {
-    if (!dragging) return;
-    dragging = false;
-    if (dragDelta < -50) next();
-    else if (dragDelta > 50) prev();
-    else update(true);
-    startAuto();
-  });
-  window.addEventListener('resize', () => {
-    buildDots();
-    update(false);
-  });
-
-  buildDots();
-  update(false);
-  startAuto();
-})();
 </script>
 @endpush
 

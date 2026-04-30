@@ -260,6 +260,70 @@ a.search-room-card:hover {
     object-fit: cover;
 }
 
+.search-room-card__rating-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-dark);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    z-index: 2;
+}
+
+.search-room-card__star {
+    width: 12px;
+    height: 12px;
+}
+
+.search-room-card__rating-count {
+    color: var(--text-mid);
+}
+
+.search-room-card__fav {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+    z-index: 2;
+}
+
+.search-room-card__fav:hover {
+    transform: scale(1.12);
+}
+
+.search-room-card__fav-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.search-room-card__fav-icon--active {
+    display: none;
+}
+
+.search-room-card__fav.is-active .search-room-card__fav-icon--default {
+    display: none;
+}
+
+.search-room-card__fav.is-active .search-room-card__fav-icon--active {
+    display: block;
+}
+
 .search-room-card__tag {
     position: absolute;
     top: 0.65rem;
@@ -305,6 +369,28 @@ a.search-room-card:hover {
     line-height: 1.35;
 }
 
+.search-room-card__summary {
+    min-height: 52px;
+    line-height: 1.55;
+}
+
+.search-room-card__amenity-list {
+    flex-wrap: wrap;
+    row-gap: 8px;
+}
+
+.search-room-card__amenity-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.search-room-card__amenity-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
 .search-room-card__meta {
     display: flex;
     align-items: center;
@@ -324,20 +410,6 @@ a.search-room-card:hover {
     font-weight: 500;
     font-size: 0.75rem;
     color: var(--text-light);
-}
-
-.search-room-card__rating {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-dark);
-}
-
-.search-room-card__rating i {
-    color: #f5a623;
-    font-size: 0.8rem;
 }
 
 .search-room-card__amenities {

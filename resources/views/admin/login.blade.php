@@ -13,36 +13,40 @@
     <link rel="stylesheet" href="{{ asset('css/admin/login.css') }}">
 </head>
 <body>
-<div class="admin-login-page">
-    <section class="admin-login-panel">
-        <div class="admin-login-card">
-            <h2>Đăng nhập quản trị</h2>
-
-            @if(session('error'))
-                <div class="admin-login-alert is-error">{{ session('error') }}</div>
-            @endif
-
-            @if(session('success'))
-                <div class="admin-login-alert is-success">{{ session('success') }}</div>
-            @endif
-
-            <form class="admin-login-form" method="POST" action="{{ route('admin.login.key') }}">
-                @csrf
-                <div>
-                    <label class="admin-login-label" for="secret_key">Secret Key quản trị</label>
-                    <div class="admin-login-field">
-                        <i class="bi bi-shield-lock-fill"></i>
-                        <input id="secret_key" type="password" name="secret_key" class="admin-login-input" placeholder="Nhập key từ file .env" autocomplete="off" required>
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header admin-login-header text-center">
+                <h4 class="mb-0"><i class="bi bi-shield-lock me-2"></i> Admin Login</h4>
+            </div>
+            <div class="card-body">
+                @if(session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+                <form method="POST" action="{{ route('admin.login.key') }}">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="secret_key" class="form-label">Admin Key</label>
+                        <input type="password" class="form-control @error('secret_key') is-invalid @enderror"
+                               id="secret_key" name="secret_key" required autofocus
+                               placeholder="Nhập admin key...">
+                        @error('secret_key')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-                </div>
 
-                <button type="submit" class="admin-btn admin-btn-primary">
-                    <i class="bi bi-box-arrow-in-right"></i>
-                    Vào bảng điều khiển
-                </button>
-            </form>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right me-2"></i> Đăng nhập
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-muted text-center">
+                <small>Admin key được thiết lập trong file .env</small>
+            </div>
         </div>
-    </section>
+    </div>
 </div>
 </body>
 </html>

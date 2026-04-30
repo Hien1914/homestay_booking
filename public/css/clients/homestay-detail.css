@@ -1,4 +1,3 @@
-/* Trang chi tiết Homestay — bố cục mới */
 .homestay-detail-page {
     background: #f8fafc;
     min-height: calc(100vh - var(--nav-height));
@@ -6,7 +5,6 @@
     padding-bottom: 3rem;
 }
 
-/* Breadcrumb: Trang chủ / Danh mục / Vị trí / Phòng */
 .homestay-detail-breadcrumb {
     margin-bottom: 1rem;
 }
@@ -126,105 +124,133 @@
     color: #f5a623;
 }
 
-/* Gallery — ảnh gọn trong container, không tràn */
-.homestay-detail-gallery {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: repeat(2, 1fr);
-    gap: 0.5rem;
+/* Gallery slider */
+.homestay-detail-gallery-slider {
+    position: relative;
     border-radius: var(--radius);
     overflow: hidden;
-    max-height: 380px;
     margin-bottom: 1.75rem;
     background: var(--off-white);
 }
 
-@media (max-width: 767px) {
-    .homestay-detail-gallery {
-        grid-template-columns: 1fr;
-        grid-template-rows: 220px 140px 140px;
-        max-height: none;
-    }
-}
-
-.homestay-detail-gallery__main {
-    grid-row: span 2;
-    position: relative;
-    min-height: 0;
-}
-
-.homestay-detail-gallery__main img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-@media (max-width: 767px) {
-    .homestay-detail-gallery__main {
-        grid-row: span 1;
-    }
-}
-
-.homestay-detail-gallery__thumb {
-    position: relative;
-    overflow: hidden;
-    min-height: 0;
-}
-
-.homestay-detail-gallery__thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.homestay-detail-gallery__thumb:last-child {
-    grid-column: 2;
-}
-
-@media (max-width: 767px) {
-    .homestay-detail-gallery__thumb:last-child {
-        grid-column: 1;
-    }
-}
-
-.homestay-detail-gallery--single .homestay-detail-gallery__main {
-    grid-column: 1 / -1;
-}
-
-/* Tab navigation */
-.homestay-detail-tabs {
+.homestay-detail-gallery-track {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0;
+    transition: transform 0.35s ease;
+    will-change: transform;
+}
+
+.homestay-detail-gallery-slide {
+    min-width: 100%;
+    height: 440px;
+}
+
+.homestay-detail-gallery-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    cursor: zoom-in;
+}
+
+.homestay-detail-gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(17, 24, 39, 0.6);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.homestay-detail-gallery-nav--prev { left: 12px; }
+.homestay-detail-gallery-nav--next { right: 12px; }
+
+.homestay-detail-gallery-counter {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    background: rgba(17, 24, 39, 0.65);
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    z-index: 2;
+}
+
+.homestay-detail-gallery-thumbs {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem;
     background: #fff;
-    border-radius: var(--radius);
-    padding: 0 0.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 1px 3px rgba(13, 40, 90, 0.06);
-    border: 1px solid rgba(13, 40, 90, 0.06);
-    position: sticky;
-    top: var(--nav-height);
-    z-index: 10;
+    overflow-x: auto;
 }
 
-.homestay-detail-tab {
-    padding: 1rem 1.25rem;
-    color: var(--text-mid);
-    text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 500;
-    border-bottom: 2px solid transparent;
+.homestay-detail-gallery-thumb {
+    border: 2px solid transparent;
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 88px;
+    height: 58px;
+    flex: 0 0 auto;
+    background: #fff;
 }
 
-.homestay-detail-tab:hover {
-    color: var(--green-600);
+.homestay-detail-gallery-thumb.is-active {
+    border-color: var(--green-500);
 }
 
-.homestay-detail-tab.is-active {
-    color: var(--green-600);
-    border-bottom-color: var(--green-600);
+.homestay-detail-gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.homestay-detail-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+}
+
+.homestay-detail-lightbox img {
+    max-width: min(92vw, 1200px);
+    max-height: 88vh;
+    object-fit: contain;
+}
+
+.homestay-detail-lightbox-close,
+.homestay-detail-lightbox-nav {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(17, 24, 39, 0.7);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.homestay-detail-lightbox-close { top: 20px; right: 20px; }
+.homestay-detail-lightbox-nav--prev { left: 20px; top: 50%; transform: translateY(-50%); }
+.homestay-detail-lightbox-nav--next { right: 20px; top: 50%; transform: translateY(-50%); }
+
+@media (max-width: 767px) {
+    .homestay-detail-gallery-slide {
+        height: 260px;
+    }
 }
 
 /* Hero stars */
@@ -241,13 +267,6 @@
 .homestay-detail-hero__star.is-filled {
     color: #f5a623;
 }
-
-.homestay-detail-hero__map-link {
-    color: var(--green-600);
-    font-size: 0.85rem;
-    margin-left: 0.5rem;
-}
-
 /* Sidebar cards */
 .homestay-detail-sidebar-card {
     background: #fff;
@@ -256,30 +275,6 @@
     margin-bottom: 1rem;
     box-shadow: 0 1px 3px rgba(13, 40, 90, 0.06);
     border: 1px solid rgba(13, 40, 90, 0.06);
-}
-
-.homestay-detail-sidebar-rating {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.homestay-detail-sidebar-score {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-dark);
-}
-
-.homestay-detail-sidebar-reviews {
-    font-size: 0.9rem;
-    color: var(--green-600);
-}
-
-.homestay-detail-sidebar-link {
-    display: inline-block;
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--green-600);
 }
 
 .homestay-detail-sidebar-text {
@@ -555,6 +550,84 @@
     font-size: 0.95rem;
 }
 
+.homestay-detail-review-breakdown {
+    margin-bottom: 1rem;
+}
+
+.homestay-detail-review-breakdown-row {
+    display: grid;
+    grid-template-columns: minmax(130px, 220px) 1fr 44px;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+}
+
+.homestay-detail-review-breakdown-left {
+    font-size: 0.86rem;
+    color: var(--text-mid);
+}
+
+.homestay-detail-review-breakdown-left i {
+    color: #f5a623;
+}
+
+.homestay-detail-review-breakdown-bar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.homestay-detail-review-breakdown-bar span {
+    display: block;
+    height: 100%;
+    background: var(--green-500);
+}
+
+.homestay-detail-review-breakdown-count {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    text-align: right;
+}
+
+.homestay-detail-review-form {
+    margin: 1rem 0 1.25rem;
+    padding: 1rem;
+    border: 1px solid rgba(13, 40, 90, 0.1);
+    border-radius: var(--radius-sm);
+    background: #fff;
+}
+
+.homestay-detail-review-form__title {
+    margin: 0 0 0.6rem;
+    font-size: 0.96rem;
+    font-weight: 700;
+}
+
+.homestay-detail-review-form__stars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.homestay-detail-review-form__stars label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+}
+
+.homestay-detail-review-form textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid rgba(13, 40, 90, 0.15);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    resize: vertical;
+}
+
 .homestay-detail-book-btn {
     width: 100%;
     padding: 0.9rem 1.25rem;
@@ -566,9 +639,7 @@
 /* Booking form in sidebar */
 .homestay-booking-form .homestay-detail-booking-price { margin-bottom: 0.5rem; }
 .homestay-booking-fields { margin: 1rem 0; }
-.homestay-booking-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-.homestay-booking-field { margin-bottom: 1rem; }
-.homestay-booking-field:last-of-type { margin-bottom: 0; }
+.homestay-booking-field { margin-bottom: 1rem;}
 .homestay-booking-field label {
     display: block;
     font-size: 0.85rem;
@@ -638,7 +709,6 @@
 }
 .homestay-booking-breakdown-row { display: flex; justify-content: space-between; padding: 0.35rem 0; }
 .homestay-booking-breakdown-row--total { font-weight: 700; font-size: 1rem; margin-top: 0.25rem; }
-.homestay-booking-breakdown-row--deposit { color: var(--green-600); font-weight: 600; }
 .homestay-booking-error {
     padding: 0.6rem 0.75rem;
     margin: 0.75rem 0;

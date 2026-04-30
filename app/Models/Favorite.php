@@ -4,28 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Favorite extends Model
 {
     use HasFactory;
 
     protected $fillable = ['user_id', 'homestay_id'];
-    public $timestamps = false;
 
-    // Automatically manage created_at
-    protected static function booted()
-    {
-        static::creating(function ($model) {
-            $model->created_at = $model->freshTimestamp();
-        });
-    }
-
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function homestay()
+    public function homestay(): BelongsTo
     {
         return $this->belongsTo(Homestay::class);
     }

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Models\Destination;
+use App\Models\Favorite;
 use App\Models\Homestay;
 use Illuminate\Support\Str;
 
@@ -13,27 +15,23 @@ class RoomSearchController extends Controller
     public function index()
     {
         $rooms = $this->roomsForView();
+        $destinations = Destination::where('is_approved', true)->orderBy('name')->get();
+        $favoriteHomestayIds = auth()->check()
+            ? Favorite::query()
+                ->where('user_id', auth()->id())
+                ->pluck('homestay_id')
+                ->map(fn($id) => (string) $id)
+                ->all()
+            : [];
 
-        return view('clients.rooms.search', [
+        return view('clients.search', [
             'rooms' => $rooms,
-            'categoryLabels' => self::categoryLabels(),
+            'destinations' => $destinations,
             'amenityLabels' => self::amenityLabels(),
+            'favoriteHomestayIds' => $favoriteHomestayIds,
         ]);
     }
 
-    /** @return array<string, string> */
-    public static function categoryLabels(): array
-    {
-        return [
-            'ven-bien' => 'Ven biển',
-            'mien-nui' => 'Miền núi',
-            'thanh-thi' => 'Thành thị',
-            'ho-song' => 'Hồ & sông',
-            'sang-trong' => 'Sang trọng',
-        ];
-    }
-
-    /** @return array<string, string> */
     public static function amenityLabels(): array
     {
         return [
@@ -67,21 +65,18 @@ class RoomSearchController extends Controller
         };
     }
 
-    /**
-     * @return list<array<string, mixed>>
-     */
     private function roomsForView(): array
     {
         $fromDb = $this->mapHomestaysToCards(
             Homestay::query()
-                ->where('status', 'available')
+                ->where('is_approved', true)
                 ->withCount('reviews')
                 ->withAvg('reviews', 'rating')
-                ->with(['amenities', 'images' => fn ($query) => $query->orderByDesc('is_primary')->orderBy('id')])
+                ->with(['amenities', 'promotion', 'rooms', 'images' => fn($query) => $query->orderByDesc('is_primary')->orderBy('id')])
+                ->latest('created_at')
                 ->orderByDesc('reviews_avg_rating')
                 ->orderByDesc('reviews_count')
                 ->orderBy('price_per_night')
-                ->limit(24)
                 ->get()
         );
 
@@ -92,14 +87,9 @@ class RoomSearchController extends Controller
         return self::demoRooms();
     }
 
-    /**
-     * @param \Illuminate\Support\Collection<int, Homestay> $rows
-     * @return list<array<string, mixed>>
-     */
     private function mapHomestaysToCards($rows): array
     {
         $out = [];
-
         foreach ($rows as $h) {
             $firstImage = $h->images->first()?->image_url;
             $img = $firstImage
@@ -107,70 +97,63 @@ class RoomSearchController extends Controller
                 : self::DEFAULT_HOMESTAY_IMAGE;
 
             $amenities = $h->relationLoaded('amenities')
-                ? $h->amenities
-                    ->pluck('name')
-                    ->map(fn ($name) => self::amenityKeyFromName((string) $name))
-                    ->filter()
-                    ->values()
-                    ->all()
+                ? $h->amenities->pluck('name')->map(fn($name) => self::amenityKeyFromName((string) $name))->filter()->values()->all()
                 : [];
+
+            // Xử lý room items mà không cần ROOM_TYPES constant
+            $roomItems = [];
+            $count = 0;
+            foreach ($h->rooms as $room) {
+                if ($room->quantity > 0) {
+                    $roomItems[] = [
+                        'icon' => $this->roomAsset($room->feature_type),
+                        'text' => $room->quantity . ' ' . $this->getRoomTypeLabel($room->feature_type),
+                    ];
+                    $count++;
+                    if ($count >= 4) break;
+                }
+            }
 
             $out[] = [
                 'id' => (string) $h->id,
                 'name' => $h->title,
                 'location' => $h->province,
+                'description' => Str::limit((string) $h->description, 110),
+                'destination_id' => (string) ($h->destination_id ?? ''),
                 'img' => $img,
                 'price_per_night' => (int) $h->price_per_night,
-                'price_label' => number_format((float) $h->price_per_night, 0, ',', '.') . 'đ',
-                'rating' => $h->reviews_avg_rating !== null ? (float) $h->reviews_avg_rating : 4.5,
+                'discounted_price_per_night' => (int) round($h->discounted_price),
+                'price_label' => number_format((float) $h->discounted_price, 0, ',', '.') . 'đ',
+                'original_price_label' => number_format((float) $h->price_per_night, 0, ',', '.') . 'đ',
+                'has_discount' => $h->active_promotion !== null && (float) $h->discounted_price < (float) $h->price_per_night,
+                'rating' => $h->reviews_avg_rating !== null ? (float) $h->reviews_avg_rating : 0.0,
                 'reviews_count' => (int) $h->reviews_count,
-                'category' => self::inferCategoryFromProvince($h->province),
                 'amenities' => array_values(array_unique($amenities)),
-                'href' => route('homestay.show', ['id' => $h->id]),
+                'room_items' => $roomItems,
+                'href' => route('homestay.show', ['slug' => $h->slug]),
             ];
         }
-
         return $out;
     }
 
-    private static function inferCategoryFromProvince(string $province): string
+    private function getRoomTypeLabel(string $type): string
     {
-        $p = Str::lower($province);
-
-        $coastal = ['đà nẵng', 'khánh hòa', 'kiên giang', 'bà rịa', 'vũng tàu', 'quảng nam', 'quảng ninh', 'bình thuận'];
-        foreach ($coastal as $c) {
-            if (Str::contains($p, $c)) {
-                return 'ven-bien';
-            }
-        }
-
-        $mountain = ['lào cai', 'sơn la', 'hà giang', 'cao bằng', 'lâm đồng', 'vĩnh phúc', 'gia lai'];
-        foreach ($mountain as $c) {
-            if (Str::contains($p, $c)) {
-                return 'mien-nui';
-            }
-        }
-
-        $urban = ['hà nội', 'hồ chí minh', 'hải phòng', 'cần thơ'];
-        foreach ($urban as $c) {
-            if (Str::contains($p, $c)) {
-                return 'thanh-thi';
-            }
-        }
-
-        $water = ['ninh bình', 'huế', 'đồng tháp', 'an giang', 'bến tre'];
-        foreach ($water as $c) {
-            if (Str::contains($p, $c)) {
-                return 'ho-song';
-            }
-        }
-
-        return 'thanh-thi';
+        $labels = [
+            'bedroom' => 'Phòng ngủ',
+            'bathroom' => 'Phòng tắm',
+            'kitchen' => 'Phòng bếp',
+            'living_room' => 'Phòng khách',
+            'pool' => 'Hồ bơi',
+            'garden' => 'Sân vườn',
+            'laundry' => 'Phòng giặt',
+            'parking' => 'Bãi đỗ xe',
+            'balcony' => 'Ban công',
+            'rooftop' => 'Sân thượng',
+            'fireplace' => 'Lò sưởi',
+        ];
+        return $labels[$type] ?? $type;
     }
 
-    /**
-     * @return list<array<string, mixed>>
-     */
     private static function demoRooms(): array
     {
         $img = self::DEFAULT_HOMESTAY_IMAGE;
@@ -181,40 +164,59 @@ class RoomSearchController extends Controller
                 'name' => 'Pine Valley Retreat',
                 'location' => 'Đà Lạt, Lâm Đồng',
                 'img' => $img,
+                'description' => 'Không gian riêng giữa rừng thông, phù hợp cho chuyến nghỉ dưỡng yên tĩnh cuối tuần.',
                 'price_per_night' => 800_000,
                 'price_label' => '800.000đ',
                 'rating' => 4.9,
                 'reviews_count' => 128,
-                'category' => 'ho-song',
                 'amenities' => ['wifi', 'parking', 'garden'],
-                'href' => route('homestay.show', ['id' => 'd1']),
+                'room_items' => [
+                    ['icon' => 'bed.svg', 'text' => '1 Phòng ngủ'],
+                    ['icon' => 'bath.svg', 'text' => '1 Phòng tắm / Vệ sinh'],
+                ],
+                'href' => route('homestay.show', ['slug' => 'd1']),
             ],
             [
                 'id' => 'd2',
                 'name' => 'Lantern House Hội An',
                 'location' => 'Hội An, Quảng Nam',
                 'img' => $img,
+                'description' => 'Căn nhà ấm cúng gần phố cổ, dễ di chuyển và phù hợp nhóm bạn nhỏ.',
                 'price_per_night' => 1_200_000,
                 'price_label' => '1.200.000đ',
                 'rating' => 4.8,
                 'reviews_count' => 94,
-                'category' => 'ven-bien',
                 'amenities' => ['pool', 'wifi', 'parking'],
-                'href' => route('homestay.show', ['id' => 'd2']),
-            ],
-            [
-                'id' => 'd3',
-                'name' => 'Cloud Nine Sapa Lodge',
-                'location' => 'Sa Pa, Lào Cai',
-                'img' => $img,
-                'price_per_night' => 650_000,
-                'price_label' => '650.000đ',
-                'rating' => 4.7,
-                'reviews_count' => 76,
-                'category' => 'mien-nui',
-                'amenities' => ['wifi', 'garden', 'parking'],
-                'href' => route('homestay.show', ['id' => 'd3']),
+                'room_items' => [
+                    ['icon' => 'bed.svg', 'text' => '2 Phòng ngủ'],
+                    ['icon' => 'pool.svg', 'text' => '1 Bể bơi'],
+                ],
+                'href' => route('homestay.show', ['slug' => 'd2']),
             ],
         ];
+    }
+
+    private function amenityIcon(string $key): string
+    {
+        return match ($key) {
+            'pool' => 'pool.svg',
+            'parking' => 'location.svg',
+            'garden' => 'leaf.svg',
+            default => 'done.svg',
+        };
+    }
+
+    private function roomAsset(string $type): string
+    {
+        return match ($type) {
+            'bedroom' => 'bed.svg',
+            'bathroom' => 'bath.svg',
+            'pool' => 'pool.svg',
+            'living_room' => 'living-room.svg',
+            'kitchen', 'dining_room' => 'kitchen.svg',
+            'garden', 'balcony' => 'leaf.svg',
+            'garage' => 'location.svg',
+            default => 'done.svg',
+        };
     }
 }

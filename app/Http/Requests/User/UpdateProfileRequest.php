@@ -14,7 +14,7 @@ class UpdateProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'  => 'sometimes|string|min:2|max:100',
+            'full_name' => 'sometimes|string|min:2|max:100',
             'phone' => 'sometimes|nullable|string|max:15|unique:users,phone,' . auth()->id(),
         ];
     }

@@ -1,13 +1,37 @@
 <?php
-    $navItems = [
-        ['route' => 'admin.dashboard', 'icon' => 'bi-grid-1x2-fill', 'label' => 'Tổng quan'],
-        ['route' => 'admin.users', 'icon' => 'bi-people-fill', 'label' => 'Người dùng'],
-        ['route' => 'admin.homestays', 'icon' => 'bi-house-door-fill', 'label' => 'Chỗ nghỉ', 'badge' => $pendingHomestays ?? 0],
-        ['route' => 'admin.bookings', 'icon' => 'bi-calendar-check-fill', 'label' => 'Đặt phòng'],
-        ['route' => 'admin.amenities', 'icon' => 'bi-stars', 'label' => 'Tiện nghi'],
-        ['route' => 'admin.promotions', 'icon' => 'bi-tag-fill', 'label' => 'Ưu đãi'],
-        ['route' => 'admin.destinations', 'icon' => 'bi-geo-alt-fill', 'label' => 'Điểm đến'],
-        ['route' => 'admin.reports', 'icon' => 'bi-bar-chart-fill', 'label' => 'Báo cáo'],
+    $navGroups = [
+        [
+            'title' => 'Tổng quát',
+            'items' => [
+                ['route' => 'admin.dashboard', 'icon' => 'bi-grid-1x2-fill', 'label' => 'Bảng điều khiển', 'badge' => 0],
+                ['route' => 'admin.users', 'icon' => 'bi-people-fill', 'label' => 'Người dùng', 'badge' => 0],
+                ['route' => 'admin.host-applications', 'icon' => 'bi-person-badge', 'label' => 'Đơn đăng ký host', 'badge' => \App\Models\HostApplication::where('status', 'pending')->count()],
+            ],
+        ],
+        [
+            'title' => 'Vận hành homestay',
+            'items' => [
+                ['route' => 'admin.homestays', 'icon' => 'bi-house-door-fill', 'label' => 'Chỗ nghỉ', 'badge' => \App\Models\Homestay::where('is_approved', false)->count()],
+                ['route' => 'admin.destinations', 'icon' => 'bi-geo-alt-fill', 'label' => 'Điểm đến', 'badge' => \App\Models\Destination::where('is_approved', false)->count()],
+                ['route' => 'admin.amenities', 'icon' => 'bi-stars', 'label' => 'Tiện nghi', 'badge' => \App\Models\Amenity::where('is_approved', false)->count()],
+                ['route' => 'admin.reviews', 'icon' => 'bi-chat-left-text-fill', 'label' => 'Đánh giá', 'badge' => 0],
+            ],
+        ],
+        [
+            'title' => 'Đặt phòng và thanh toán',
+            'items' => [
+                ['route' => 'admin.bookings', 'icon' => 'bi-calendar-check-fill', 'label' => 'Đặt phòng', 'badge' => \App\Models\Payment::where('payment_status', \App\Models\Payment::STATUS_PENDING)->whereNotNull('paid_at')->count()],
+                ['route' => 'admin.payments', 'icon' => 'bi-wallet2', 'label' => 'Thanh toán', 'badge' => \App\Models\Payment::where('payment_status', \App\Models\Payment::STATUS_PENDING)->whereNotNull('paid_at')->count()],
+                ['route' => 'admin.payouts', 'icon' => 'bi-cash-stack', 'label' => 'Yêu cầu rút tiền', 'badge' => \App\Models\Payout::where('status', 'pending')->count()],
+
+            ],
+        ],
+        [
+            'title' => 'Nội dung',
+            'items' => [
+                ['route' => 'admin.posts.index', 'icon' => 'bi-newspaper', 'label' => 'Bài viết', 'badge' => 0],
+            ],
+        ],
     ];
 ?>
 
@@ -36,16 +60,24 @@
 <?php endif; ?>
         </div>
         <div>
-            <h6 class="m-0 fw-bold">Quản trị viên</h6>
+            <h6 class="m-0 fw-bold text-white">Quản trị viên</h6>
         </div>
     </div>
 
     <nav class="admin-nav d-flex flex-column">
-        <?php $__currentLoopData = $navItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <a href="<?php echo e(route($item['route'])); ?>" class="admin-nav-link <?php echo e(request()->routeIs($item['route'] . '*') ? 'is-active' : ''); ?>">
-                <i class="bi <?php echo e($item['icon']); ?>"></i>
-                <span><?php echo e($item['label']); ?></span>
-            </a>
+        <?php $__currentLoopData = $navGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <div class="admin-nav-group">
+                <div class="admin-nav-group-title"><?php echo e($group['title']); ?></div>
+                <?php $__currentLoopData = $group['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="<?php echo e(route($item['route'])); ?>" class="admin-nav-link <?php echo e(request()->routeIs($item['route'] . '*') ? 'is-active' : ''); ?>">
+                        <i class="bi <?php echo e($item['icon']); ?>"></i>
+                        <span><?php echo e($item['label']); ?></span>
+                        <?php if(isset($item['badge']) && $item['badge'] > 0): ?>
+                            <span class="admin-sidebar-badge"><?php echo e($item['badge']); ?></span>
+                        <?php endif; ?>
+                    </a>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </nav>
 

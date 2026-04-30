@@ -4,132 +4,186 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Payment;
+use App\Models\Homestay;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
 
 class PaymentController extends Controller
 {
-    /** % đặt cọc theo ngưỡng (đồng nhất với API) */
-    private const DEPOSIT_THRESHOLD = 500_000;
-    private const DEPOSIT_RATE_MEDIUM = 0.15;
-    private const DEPOSIT_RATE_HIGH = 0.20;
-    private const EXTRA_GUEST_FEE = 100_000;
-
-    public function show(Request $request)
+    public function storeBooking(Request $request, string $slug)
     {
-        $code   = $request->query('code');
-        $demo   = $request->query('demo');
-        $method = $request->query('method', 'vnpay');
+        $request->validate([
+            'check_in'      => 'required|date|after_or_equal:today',
+            'check_out'     => 'required|date|after:check_in',
+            'num_guests'    => 'required|integer|min:1',
+            'payment_method'=> 'required|string',
+        ]);
 
-        if ($demo) {
-            $data = session('demo_booking');
-            if (! $data) {
-                return redirect()->route('home')->with('error', 'Phiên đặt phòng đã hết hạn.');
-            }
+        $homestay = Homestay::where('slug', $slug)->where('is_approved', true)->firstOrFail();
+        $nights = Carbon::parse($request->check_in)->diffInDays($request->check_out);
+        $pricePerNight = $homestay->discounted_price;
+        $subtotal = $nights * $pricePerNight;
+        $maxGuests = $homestay->max_guests ?? 4;
+        $extraGuests = max(0, $request->num_guests - $maxGuests);
+        $extraFee = $extraGuests * 100000 * $nights; // 100k/khách/đêm
+        $totalAmount = $subtotal + $extraFee;
+        $adminEarn = (int) round($totalAmount * 0.1);
+        $hostEarn = $totalAmount - $adminEarn;
 
-            return view('clients.payment.show', [
-                'booking'       => (object) $data,
-                'amountToPay'   => $data['amount_to_pay'] ?? $data['total_amount'],
-                'isDeposit'     => $data['is_deposit'] ?? false,
-                'paymentMethod' => in_array($method, ['vnpay', 'momo']) ? $method : 'vnpay',
-                'isDemo'        => true,
+        DB::beginTransaction();
+        try {
+            $booking = Booking::create([
+                'user_id'       => Auth::id(),
+                'homestay_id'   => $homestay->id,
+                'check_in'      => $request->check_in,
+                'check_out'     => $request->check_out,
+                'num_guests'    => $request->num_guests,
+                'total_amount'  => $totalAmount,
+                'admin_earn'    => $adminEarn,
+                'host_earn'     => $hostEarn,
+                'status'        => Booking::STATUS_PENDING,
+            ]);
+
+            Payment::create([
+                'booking_id'     => $booking->id,
+                'payment_method' => $request->payment_method,
+                'amount'         => $totalAmount,
+                'payment_status' => Payment::STATUS_PENDING,
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'redirect' => route('payment.show', $booking->id),
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function storeDemoBooking(Request $request, string $slug)
+    {
+        return $this->storeBooking($request, $slug);
+    }
+
+    public function show(Booking $booking)
+    {
+        if ($booking->user_id !== Auth::id()) abort(403);
+        $booking->loadMissing(['payment', 'homestay', 'user']);
+
+        if (!$booking->payment) {
+            Payment::create([
+                'booking_id'     => $booking->id,
+                'payment_method' => 'bank_transfer',
+                'amount'         => $booking->total_amount,
+                'payment_status' => Payment::STATUS_PENDING,
             ]);
         }
 
-        if (! $code) {
-            return redirect()->route('home')->with('error', 'Mã đặt phòng không hợp lệ.');
-        }
-
-        $booking = Booking::where('booking_code', $code)->with('homestay')->first();
-        if (! $booking) {
-            return redirect()->route('home')->with('error', 'Không tìm thấy đơn đặt phòng.');
-        }
-
-        $amountToPay = $this->getAmountToPay((float) $booking->total_amount);
-        $isDeposit   = $amountToPay < (float) $booking->total_amount;
-
-        return view('clients.payment.show', [
-            'booking'       => $booking,
-            'amountToPay'   => $amountToPay,
-            'isDeposit'     => $isDeposit,
-            'paymentMethod' => in_array($method, ['vnpay', 'momo']) ? $method : 'vnpay',
-            'isDemo'        => false,
-        ]);
-    }
-
-    public function storeDemoBooking(Request $request, string $id)
-    {
-        $homestay = HomestayDetailController::getDemoHomestay($id);
-        if (! $homestay) {
-            return response()->json(['success' => false, 'message' => 'Homestay không tồn tại.'], 404);
-        }
-
-        $valid = $request->validate([
-            'check_in_date'  => 'required|date|after_or_equal:today',
-            'check_out_date' => 'required|date|after:check_in_date',
-            'num_guests'     => 'required|integer|min:1',
-            'payment_method' => 'required|in:vnpay,momo',
+        session([
+            'booking_id' => $booking->id,
+            'checkout_amount' => $booking->total_amount,
         ]);
 
-        $amounts = $this->computeAmounts($homestay, $valid['check_in_date'], $valid['check_out_date'], (int) $valid['num_guests']);
-        $deposit = $this->getDeposit($amounts['total_amount']);
-
-        $booking = [
-            'booking_code'   => 'DEMO-' . strtoupper(substr(md5(uniqid()), 0, 8)),
-            'homestay_name'  => $homestay['name'],
-            'check_in_date'  => $valid['check_in_date'],
-            'check_out_date' => $valid['check_out_date'],
-            'num_nights'     => $amounts['num_nights'],
-            'num_guests'     => $valid['num_guests'],
-            'total_amount'   => $amounts['total_amount'],
-            'amount_to_pay'  => $deposit['amount_to_pay'],
-            'is_deposit'     => $deposit['is_deposit'],
-            'payment_method' => $valid['payment_method'],
-        ];
-
-        session(['demo_booking' => $booking]);
-
-        return response()->json([
-            'success' => true,
-            'redirect' => route('payment.show', ['demo' => 1, 'method' => $valid['payment_method']]),
-        ]);
+        return view('clients.payment', compact('booking'));
     }
 
-    private function computeAmounts(array $homestay, string $checkIn, string $checkOut, int $numGuests): array
+    public function confirmPayment(Request $request)
     {
-        $nights     = (int) (strtotime($checkOut) - strtotime($checkIn)) / 86400;
-        $price      = (int) ($homestay['price_per_night'] ?? 0);
-        $maxGuests  = (int) ($homestay['max_guests'] ?? 4);
-        $subtotal   = $price * $nights;
-        $extra      = max(0, $numGuests - $maxGuests) * self::EXTRA_GUEST_FEE * $nights;
-        $beforeFee  = $subtotal + $extra;
-        $serviceFee = round($beforeFee * 0.10);
-        $total      = $beforeFee + $serviceFee;
+        $request->validate(['booking_id' => 'required|exists:bookings,id']);
+        $booking = Booking::with('payment')->findOrFail($request->booking_id);
+        if ($booking->user_id !== Auth::id()) abort(403);
 
-        return [
-            'num_nights' => $nights,
-            'subtotal'   => $subtotal,
-            'total_amount' => $total,
-        ];
-    }
-
-    private function getDeposit(float $total): array
-    {
-        if ($total < self::DEPOSIT_THRESHOLD) {
-            return ['amount_to_pay' => $total, 'is_deposit' => false];
+        if (!$booking->payment) {
+            Payment::create([
+                'booking_id' => $booking->id,
+                'payment_method' => 'bank_transfer',
+                'amount' => $booking->total_amount,
+                'payment_status' => Payment::STATUS_PENDING,
+                'paid_at' => now(),
+            ]);
+        } else {
+            $booking->payment->update([
+                'payment_status' => Payment::STATUS_PENDING,
+                'paid_at' => now(),
+            ]);
         }
-        $rate = $total >= 2_000_000 ? self::DEPOSIT_RATE_HIGH : self::DEPOSIT_RATE_MEDIUM;
 
-        return [
-            'amount_to_pay' => round($total * $rate),
-            'is_deposit'    => true,
-        ];
+        return redirect()
+            ->route('bookings.history')
+            ->with('success', 'Đã ghi nhận thanh toán. Vui lòng chờ xác nhận.');
     }
 
-    private function getAmountToPay(float $total): float
+    public function generateQR(Request $request)
     {
-        $d = $this->getDeposit($total);
+        try {
+            $bankAccount = env('BANK_ACCOUNT', '19074350511010');
+            $bankName = env('BANK_NAME', 'Techcombank');
+            $bankBin = env('BANK_BIN', '970407');
+            $accountName = env('ACCOUNT_NAME', 'PHAM THUY HIEN');
+            $amount = (int) session('checkout_amount', 0);
+            $bookingId = session('booking_id');
 
-        return $d['amount_to_pay'];
+            if ($bookingId) {
+                $booking = Booking::find($bookingId);
+                $transferMessage = 'BOOKING' . ($booking ? $booking->id : 'DEMO');
+            } else {
+                $transferMessage = 'DEMO' . time();
+            }
+
+            $expireTime = now()->addMinutes(15);
+            $transferMessage = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $transferMessage));
+
+            $vietQRUrl = "https://img.vietqr.io/image/{$bankBin}-{$bankAccount}-compact2.jpg?" . http_build_query([
+                'amount' => $amount,
+                'addInfo' => $transferMessage,
+                'accountName' => $accountName,
+            ]);
+
+            session([
+                'qr_code' => $transferMessage,
+                'qr_expire' => $expireTime->format('Y-m-d H:i:s'),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'qr_image' => $vietQRUrl,
+                'bank_info' => [
+                    'bank' => $bankName,
+                    'account' => $bankAccount,
+                    'account_name' => $accountName,
+                    'amount' => $amount,
+                ],
+                'transfer_code' => $transferMessage,
+                'expire_time' => $expireTime->format('Y-m-d H:i:s'),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Không thể tạo mã QR.'], 500);
+        }
     }
 
+    public function proxyQR(Request $request)
+    {
+        $url = $request->query('url');
+        if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
+            return response('Invalid URL', 400);
+        }
+
+        try {
+            $imageResponse = Http::timeout(5)->get($url);
+
+            if (!$imageResponse->successful()) {
+                return response('Failed to load QR', 500);
+            }
+
+            return response($imageResponse->body())->header('Content-Type', 'image/png');
+        } catch (\Exception $e) {
+            return response('Failed to load QR', 500);
+        }
+    }
 }

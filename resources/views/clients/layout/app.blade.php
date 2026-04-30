@@ -16,19 +16,20 @@
     
     <!-- Custom Stylesheets -->
     <link rel="stylesheet" href="{{ asset('css/variable.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/layout.css?v=2.0') }}">
-    <link rel="stylesheet" href="{{ asset('css/responsive.css?v=1.2') }}">
+    <link rel="stylesheet" href="{{ asset('css/clients/layout.css?v=2.0') }}">
+    <link rel="stylesheet" href="{{ asset('css/clients/responsive.css?v=1.2') }}">
 
     <title>@yield('title', 'NestAway') | Homestay Việt Nam</title>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     @include('clients.layout.header')
 
-    @yield('content')
+    <main class="flex-grow-1">
+        @yield('content')
+    </main>
 
     @include('clients.layout.footer')
 
-    <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     @stack('scripts')

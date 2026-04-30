@@ -1,8 +1,10 @@
-<nav class="navbar">
-  <div class="container-fluid navbar-container">
+<nav class="nav">
+  <div class="container-setting nav-container">
+
     @php($isHomePage = request()->routeIs('home'))
-    @php($isDestinationPage = request()->routeIs('destinations.show'))
-    <a href="/" class="logo">
+    @php($isCategoryPage = request()->routeIs('destinations.show'))
+
+    <a href="/" class="nav-logo">
       @if($isHomePage)
         <x-logo-icon-home width="24" height="24" aria-hidden="true" />
       @else
@@ -11,14 +13,15 @@
       <span>NestAway</span>
     </a>
 
-    <button type="button" class="mobile-menu-toggle" id="navbar-toggle" aria-label="Mở menu điều hướng" aria-expanded="false" aria-controls="navbar-menu">
-      <i class="fa-solid fa-bars icon-bars" aria-hidden="true"></i>
-      <i class="fa-solid fa-xmark icon-close" aria-hidden="true"></i>
+    <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Mở menu"
+      aria-expanded="false" aria-controls="nav-menu">
+      <i class="fa-solid fa-bars" aria-hidden="true"></i>
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
     </button>
 
-    <div class="navbar-menu" id="navbar-menu">
-      <div class="navbar-menu-header">
-        <a href="/" class="navbar-menu-brand">
+    <div class="nav-menu" id="nav-menu">
+      <div class="nav-menu-header">
+        <a href="/" class="nav-logo">
           @if($isHomePage)
             <x-logo-icon-home width="24" height="24" aria-hidden="true" />
           @else
@@ -26,59 +29,67 @@
           @endif
           <span>NestAway</span>
         </a>
-        <button type="button" class="navbar-menu-close" id="navbar-menu-close" aria-label="Đóng menu">
+        <button type="button" class="nav-close" id="nav-close" aria-label="Đóng menu">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
       </div>
-      <div class="navbar-menu-body">
-        <ul class="nav-links">
-          <li><a href="{{ route('home') }}" class="nav-link-item {{ $isHomePage ? 'active' : '' }}">Trang chủ</a></li>
-          <li class="nav-submenu-item" aria-label="Menu điểm đến">
-            <a href="{{ route('destinations.show', ['category' => 'ven-bien']) }}" class="nav-link-item nav-submenu-trigger {{ $isDestinationPage ? 'active' : '' }}" aria-label="Mở menu điểm đến">Điểm đến</a>
-            <ul class="submenu-list" aria-label="Các lựa chọn điểm đến">
-              <li><a href="{{ route('destinations.show', ['category' => 'ven-bien']) }}" class="submenu-link">Ven biển</a></li>
-              <li><a href="{{ route('destinations.show', ['category' => 'mien-nui']) }}" class="submenu-link">Miền núi</a></li>
-              <li><a href="{{ route('destinations.show', ['category' => 'thanh-thi']) }}" class="submenu-link">Thành thị</a></li>
-              <li><a href="{{ route('destinations.show', ['category' => 'ho-song']) }}" class="submenu-link">Hồ & sông</a></li>
-              <li><a href="{{ route('destinations.show', ['category' => 'sang-trong']) }}" class="submenu-link">Sang trọng</a></li>
-            </ul>
-          </li>
-          <li><a href="{{ route('rooms.search') }}" class="nav-link-item {{ request()->routeIs('rooms.search') ? 'active' : '' }}">Tìm phòng</a></li>
-          <li><a href="{{ route('blog.index') }}" class="nav-link-item {{ request()->routeIs('blog.*') ? 'active' : '' }}">Blog</a></li>
-        </ul>
-      </div>
-      <div class="navbar-actions">
+
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="{{ route('home') }}" class="nav-link {{ $isHomePage ? 'active' : '' }}">Trang chủ</a>
+        </li>
+        <li class="nav-item">
+          <a href="{{ route('pages.search') }}" class="nav-link {{ request()->routeIs('pages.search') ? 'active' : '' }}">Tìm phòng</a>
+        </li>
+        <li class="nav-item">
+          <a href="{{ route('blog.index') }}" class="nav-link {{ request()->routeIs('blog.*') ? 'active' : '' }}">Blog</a>
+        </li>
         @auth
-          {{-- Đã đăng nhập --}}
-          <div class="navbar-user-actions">
-            <button type="button" class="notification-btn" id="notification-btn" aria-label="Thông báo">
-              <i class="fa-solid fa-bell"></i>
-              <span class="notification-badge" id="notification-badge" hidden>0</span>
-            </button>
-            
-            <div class="user-dropdown" id="user-dropdown">
-              <button type="button" class="user-dropdown-trigger" id="user-dropdown-trigger">
-                <span class="user-avatar">{{ strtoupper(substr(Auth::user()->full_name, 0, 1)) }}</span>
-                <span class="user-name">{{ Auth::user()->full_name }}</span>
-                <i class="fa-solid fa-chevron-down user-dropdown-icon"></i>
+          @if(Auth::user()->isHost())
+            <li class="nav-item">
+              <a href="{{ route('host.dashboard') }}" class="nav-link nav-link-host {{ request()->routeIs('host.*') ? 'active' : '' }}">Chuyển sang trang Host
+              </a>
+            </li>
+          @elseif(Auth::user()->isUser())
+            <li class="nav-item">
+              <a href="{{ route('apply-host.create') }}" class="nav-link nav-link-partner {{ request()->routeIs('apply-host.*') ? 'active' : '' }}">Trở thành đối tác
+              </a>
+            </li>
+          @endif
+        @else
+          <li class="nav-item">
+            <a href="{{ route('apply-host.create') }}" class="nav-link nav-link-partner">Trở thành đối tác</a>
+          </li>
+        @endauth
+      </ul>
+
+      <div class="nav-actions">
+        @if(Auth::check())
+          <div class="nav-user">
+            <div class="nav-user-menu" id="nav-user-menu">
+              <button type="button" class="nav-user-btn" id="nav-user-btn">
+                <span class="nav-user-avatar">{{ mb_strtoupper(mb_substr(Auth::user()->full_name, 0, 1)) }}</span>
+                <span class="nav-user-name">{{ Auth::user()->full_name }}</span>
+                <i class="fa-solid fa-chevron-down"></i>
               </button>
-              <div class="user-dropdown-menu" id="user-dropdown-menu">
-                <a href="{{ route('profile.page') }}" class="user-dropdown-item">
+              <div class="nav-user-dropdown" id="nav-user-dropdown">
+                <a href="{{ route('profile.page') }}" class="nav-user-item">
                   <i class="fa-solid fa-user"></i>
                   <span>Thông tin cá nhân</span>
                 </a>
-                <a href="{{ route('wishlist.index') }}" class="user-dropdown-item">
+                <a href="{{ route('favorite.index') }}" class="nav-user-item">
                   <i class="fa-solid fa-heart"></i>
                   <span>Phòng yêu thích</span>
                 </a>
-                <a href="{{ route('bookings.history') }}" class="user-dropdown-item">
+                <a href="{{ route('bookings.history') }}" class="nav-user-item">
                   <i class="fa-solid fa-clock-rotate-left"></i>
                   <span>Lịch sử đặt phòng</span>
                 </a>
-                <div class="user-dropdown-divider"></div>
+
+                <div class="nav-divider"></div>
                 <form action="{{ route('auth.logout') }}" method="POST" style="margin: 0;">
                   @csrf
-                  <button type="submit" class="user-dropdown-item user-dropdown-logout">
+                  <button type="submit" class="nav-user-item nav-logout">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Đăng xuất</span>
                   </button>
@@ -87,88 +98,108 @@
             </div>
           </div>
         @else
-          {{-- Chưa đăng nhập --}}
-          <a href="{{ route('login.page') }}" class="btn-login">Đăng nhập</a>
-        @endauth
+          <a href="{{ route('login.page') }}" class="nav-btn-login">Đăng nhập</a>
+        @endif
       </div>
     </div>
   </div>
-  <div class="navbar-backdrop" id="navbar-backdrop" hidden aria-hidden="true"></div>
+  <div class="nav-backdrop" id="nav-backdrop" hidden aria-hidden="true"></div>
 </nav>
 
 <script>
-(function () {
-  var nav = document.querySelector('.navbar');
-  var toggle = document.getElementById('navbar-toggle');
-  var menu = document.getElementById('navbar-menu');
-  var backdrop = document.getElementById('navbar-backdrop');
-  var menuClose = document.getElementById('navbar-menu-close');
-  if (!toggle || !menu || !nav) return;
+  // Nav menu toggle (mobile drawer)
+  (function () {
+    var toggle = document.getElementById('nav-toggle');
+    var menu = document.getElementById('nav-menu');
+    var backdrop = document.getElementById('nav-backdrop');
+    var closeBtn = document.getElementById('nav-close');
+    
+    if (!toggle || !menu) return;
 
-  var mq = window.matchMedia('(max-width: 768px)');
+    function setOpen(open) {
+      menu.classList.toggle('is-open', open);
+      toggle.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (backdrop) {
+        backdrop.hidden = !open;
+        backdrop.setAttribute('aria-hidden', !open);
+      }
+    }
 
-  function setOpen(open) {
-    menu.classList.toggle('is-open', open);
-    toggle.classList.toggle('is-open', open);
-    nav.classList.toggle('navbar--menu-open', open);
-    document.body.classList.toggle('navbar-drawer-open', open);
-    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    toggle.setAttribute('aria-label', open ? 'Đóng menu điều hướng' : 'Mở menu điều hướng');
+    toggle.addEventListener('click', function () {
+      setOpen(!menu.classList.contains('is-open'));
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
+        setOpen(false);
+      });
+    }
+
     if (backdrop) {
-      backdrop.hidden = !open;
-      backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+      backdrop.addEventListener('click', function () {
+        setOpen(false);
+      });
     }
-  }
 
-  toggle.addEventListener('click', function () {
-    setOpen(!menu.classList.contains('is-open'));
-  });
+    // Handle submenu toggle on mobile
+    var navItems = menu.querySelectorAll('.nav-item');
+    navItems.forEach(function (item) {
+      var link = item.querySelector('a');
+      var submenu = item.querySelector('.nav-submenu');
 
-  if (menuClose) {
-    menuClose.addEventListener('click', function () {
-      setOpen(false);
+      if (submenu && link) {
+        link.addEventListener('click', function (e) {
+          // On mobile, prevent default and toggle submenu
+          if (window.matchMedia('(max-width: 992px)').matches) {
+            e.preventDefault();
+            item.classList.toggle('is-open');
+          }
+        });
+      }
     });
-  }
 
-  if (backdrop) {
-    backdrop.addEventListener('click', function () {
-      setOpen(false);
+    // Close menu on link click only if it doesn't have submenu
+    menu.querySelectorAll('a').forEach(function (el) {
+      var item = el.closest('.nav-item');
+      var submenu = item ? item.querySelector('.nav-submenu') : null;
+
+      if (!submenu) {
+        el.addEventListener('click', function () {
+          if (window.matchMedia('(max-width: 992px)').matches) {
+            setOpen(false);
+          }
+        });
+      }
     });
-  }
 
-  menu.querySelectorAll('a, .btn-login').forEach(function (el) {
-    el.addEventListener('click', function () {
-      if (mq.matches) setOpen(false);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setOpen(false);
     });
-  });
+  })();
 
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') setOpen(false);
-  });
-})();
+  // User dropdown toggle
+  (function () {
+    var userMenu = document.getElementById('nav-user-menu');
+    var userBtn = document.getElementById('nav-user-btn');
 
-// User dropdown toggle
-(function () {
-  var userDropdown = document.getElementById('user-dropdown');
-  var userDropdownTrigger = document.getElementById('user-dropdown-trigger');
-  
-  if (!userDropdown || !userDropdownTrigger) return;
+    if (!userMenu || !userBtn) return;
 
-  userDropdownTrigger.addEventListener('click', function (e) {
-    e.stopPropagation();
-    userDropdown.classList.toggle('is-open');
-  });
+    userBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      userMenu.classList.toggle('is-open');
+    });
 
-  document.addEventListener('click', function (e) {
-    if (!userDropdown.contains(e.target)) {
-      userDropdown.classList.remove('is-open');
-    }
-  });
+    document.addEventListener('click', function (e) {
+      if (!userMenu.contains(e.target)) {
+        userMenu.classList.remove('is-open');
+      }
+    });
 
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-      userDropdown.classList.remove('is-open');
-    }
-  });
-})();
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        userMenu.classList.remove('is-open');
+      }
+    });
+  })();
 </script>

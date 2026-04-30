@@ -3,7 +3,7 @@
 @section('title', 'Điều khoản dịch vụ')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/policy.css') }}">
+<link rel="stylesheet" href="{{ asset('css/clients/policy.css') }}">
 <div class="policy-page-wrapper">
     <div class="container-setting policy-container">
         <h1 class="policy-page-title">ĐIỀU KHOẢN DỊCH VỤ</h1>

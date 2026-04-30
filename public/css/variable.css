@@ -1,11 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Google+Sans:wght@400;500;700&display=swap");
 
 :root {
+    /* Clients root*/
+
     /* Colors */
     --white: #ffffff;
-    --off-white: #f7f7f3;
+    --off-white: ##f4fbf4;
     
     /* Primary Theme (Green) */
+    --primary: #3f7f3f;
     --green-50: #f7f7f3;
     --green-100: #f1f4ed;
     --green-200: #e6eddc;
@@ -33,13 +36,10 @@
     --text-dark: #0f172a;
     --text-mid: #475569;
     --text-light: #94a3b8;
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --text-nav: #454745;
+
+    /* Shadow */
+    --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
     
     /* Border Radius */
     --radius-sm: 6px;
@@ -50,15 +50,23 @@
     /* Fonts */
     --font-family: "Inter", sans-serif;
     --font-google-sans: "Google Sans", sans-serif;
-
-    /* Bootstrap primary overrides (for bg-primary/text-primary/etc) */
-    --bs-primary: var(--green-600);
-    --bs-primary-rgb: 83,162,82;
     
     /* Layout */
-    --nav-height: 60px;
-    --container-max: 1280px;
-    --container-lg: 1140px;
-    --container-md: 960px;
-    --container-sm: 720px;
+    --nav-height: 70px;
+
+    /* Admin root*/
+    --admin-bg: #f6f8f4;
+    --admin-surface: #ffffff;
+    --admin-border: #d7e3d2;
+    --admin-text: #1c2a22;
+    --admin-muted: #5f7066;
+    --admin-primary: #003b0d;
+    --admin-primary-soft: #dceadd;
+    --admin-sidebar-bg: #00350b;
+    --admin-success: #169b62;
+    --admin-success-soft: #e8faf2;
+    --admin-warning: #d99022;
+    --admin-warning-soft: #fff8e7;
+    --admin-danger: #d34f5f;
+    --admin-danger-soft: #fff0f2;
 }

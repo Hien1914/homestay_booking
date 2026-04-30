@@ -11,27 +11,27 @@ class DestinationController extends Controller
 {
     public function show(?string $slug = null): View
     {
-        $allDestinations = Destination::orderBy('name')->get();
+        $allDestinations = Destination::where('is_approved', true)->orderBy('name')->get();
 
         $destination = $slug
-            ? Destination::where('slug', $slug)->firstOrFail()
-            : $allDestinations->first();
+            ? Destination::where('is_approved', true)->where('slug', $slug)->firstOrFail()
+            : null;
 
-        abort_if(!$destination, 404);
-
-        $homestays = Homestay::query()
-            ->where('province', $destination->province)
-            ->where('status', 'published')
-            ->with(['images' => fn ($q) => $q->orderByDesc('is_primary')->orderBy('id')])
+        $query = Homestay::query()->where('is_approved', true)
+            ->with(['promotion', 'images' => fn($q) => $q->orderByDesc('is_primary')->orderBy('id')])
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
-            ->latest()
-            ->get();
+            ->latest();
 
-        return view('clients.destinations.index', [
-            'destination'     => $destination,
+        if ($destination) {
+            $query->where('destination_id', $destination->id);
+        }
+
+        return view('clients.destinations', [
+            'destination' => $destination,
             'allDestinations' => $allDestinations,
-            'homestays'       => $homestays,
+            'homestays' => $query->paginate(15),
         ]);
     }
 }
+

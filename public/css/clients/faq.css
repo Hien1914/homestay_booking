@@ -1,0 +1,86 @@
+/* FAQ Page Styles - Optimized with Bootstrap Utilities */
+
+.faq-hero h1 {
+    font-family: var(--font-google-sans);
+}
+
+.faq-search-box input:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.25);
+}
+
+.faq-category {
+    margin-bottom: 30px;
+}
+
+.faq-category-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 16px;
+    position: relative;
+    padding-left: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.faq-category-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10%;
+    height: 80%;
+    width: 6px;
+    border-radius: 8px;
+    background-color: #2E7D32; 
+}
+
+.faq-accordion .accordion-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 16px !important;
+    margin-bottom: 16px;
+    background-color: #ffffff;
+    overflow: hidden;
+}
+
+.faq-accordion .accordion-button {
+    font-weight: 600;
+    color: #000000;
+    padding: 20px; 
+    font-size: 1.1rem;
+    background-color: transparent;
+    box-shadow: none !important;
+}
+
+.faq-accordion .accordion-button:not(.collapsed) {
+    color: #2E7D32;
+    background-color: #ffffff;
+}
+
+.faq-accordion .accordion-button::after {
+    background-image: none;
+    content: '\f078';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: #000000;
+    transition: transform 0.3s ease;
+}
+
+.faq-accordion .accordion-button:not(.collapsed)::after {
+    transform: rotate(180deg);
+    color: #2E7D32;
+}
+
+.faq-accordion .accordion-body {
+    padding: 24px;
+    color: #000000;
+    line-height: 1.6;
+    background-color: #ffffff;
+    border-top: 1px solid #eee;
+}
+
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #000000;
+}

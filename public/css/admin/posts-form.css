@@ -1,0 +1,32 @@
+.admin-form-error {
+    margin-top: 4px;
+    color: #dc3545;
+    font-size: 12px;
+}
+
+.admin-post-current-image {
+    max-width: 160px;
+}
+
+#post-editor {
+    background: #fff;
+}
+
+#post-editor .ql-toolbar.ql-snow {
+    border-radius: 6px 6px 0 0;
+}
+
+#post-editor .ql-container.ql-snow {
+    min-height: 320px;
+    border-radius: 0 0 6px 6px;
+    font-size: 14px;
+}
+
+#post-editor .ql-editor {
+    min-height: 280px;
+}
+
+#post-editor .ql-editor.ql-blank::before {
+    color: #94a3b8;
+    font-style: normal;
+}

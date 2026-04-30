@@ -5,52 +5,93 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'full_name',
-        'email',
-        'phone',
-        'password_hash',
-        'role',
-        'is_email_verified',
-        'avatar_url',
+        'full_name', 'email', 'password', 'phone', 'gender', 'birthday',
+        'role', 'auth_provider', 'google_id', 'avatar_url', 'bank_name', 'bank_account_number'
     ];
 
-    protected $hidden = [
-        'password_hash',
+    protected $hidden = ['password'];
+
+    protected $casts = [
+        'birthday' => 'date',
     ];
+
+    public function homestays(): HasMany
+    {
+        return $this->hasMany(Homestay::class, 'owner_id');
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function favoriteHomestays(): BelongsToMany
+    {
+        return $this->belongsToMany(Homestay::class, 'favorites')->withTimestamps();
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function hostApplication(): HasMany
+    {
+        return $this->hasMany(HostApplication::class);
+    }
+
+    public function payouts(): HasMany
+    {
+        return $this->hasMany(Payout::class, 'host_id');
+    }
+
+    public function createdAmenities(): HasMany
+    {
+        return $this->hasMany(Amenity::class, 'created_by');
+    }
+
+    public function createdDestinations(): HasMany
+    {
+        return $this->hasMany(Destination::class, 'created_by');
+    }
+
+    public function promotions(): HasMany
+    {
+        return $this->hasMany(Promotion::class, 'host_id');
+    }
 
     public function getAuthPassword()
     {
-        return $this->password_hash;
+        return $this->password;
     }
 
-    public function bookings()
+    /* ── Role helpers ── */
+
+    public function isAdmin(): bool
     {
-        return $this->hasMany(Booking::class, 'guest_id');
+        return $this->role === 'admin';
     }
 
-    public function favorites()
+    public function isHost(): bool
     {
-        return $this->hasMany(Favorite::class);
+        return $this->role === 'host';
     }
 
-    public function reviews()
+    public function isUser(): bool
     {
-        return $this->hasMany(Review::class, 'reviewer_id');
+        return $this->role === 'user';
     }
 
-    public function notifications()
+    public function getAgeAttribute()
     {
-        return $this->hasMany(UserNotification::class)->latest();
-    }
-
-    public function unreadNotificationsCount(): int
-    {
-        return $this->hasMany(UserNotification::class)->where('is_read', false)->count();
+        return $this->birthday ? $this->birthday->age : null;
     }
 }

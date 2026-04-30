@@ -4,40 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Review extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'booking_id',
-        'reviewer_id',
-        'homestay_id',
-        'rating',
-        'comment',
-    ];
+    const UPDATED_AT = null;
 
-    public $timestamps = false;
+    protected $fillable = ['booking_id', 'user_id', 'homestay_id', 'rating', 'comment'];
+    protected $casts = ['rating' => 'integer'];
 
-    // Automatically manage created_at
-    protected static function booted()
-    {
-        static::creating(function ($model) {
-            $model->created_at = $model->freshTimestamp();
-        });
-    }
-
-    public function booking()
+    public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);
     }
 
-    public function reviewer()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class , 'reviewer_id');
+        return $this->belongsTo(User::class);
     }
 
-    public function homestay()
+    public function homestay(): BelongsTo
     {
         return $this->belongsTo(Homestay::class);
     }

@@ -11,6 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/variable.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/page.css') }}">
     @stack('styles')
 </head>
 <body>
@@ -29,77 +30,39 @@
 @include('admin.layout.sidebar')
 
 <main class="admin-main-content">
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof toastr !== 'undefined') {
+                    toastr.success('{{ session('success') }}');
+                } else {
+                    alert('{{ session('success') }}');
+                }
+            });
+        </script>
+    @endif
+    
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof toastr !== 'undefined') {
+                    toastr.error('{{ session('error') }}');
+                } else {
+                    alert('{{ session('error') }}');
+                }
+            });
+        </script>
+    @endif
+    
     @yield('content')
 </main>
 
 <form id="admin-logout-form" action="{{ route('admin.logout') }}" method="POST" class="d-none">
     @csrf
 </form>
-{{-- 
-<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div> --}}
-
-<!-- Toast Container -->
-<div class="toast-container position-fixed top-0 end-0 p-4" id="toastContainer" style="z-index: 9999;"></div>
 
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 <script>
-// Toast Notification System
-function showToast(message, type = 'success') {
-    const toastContainer = document.getElementById('toastContainer');
-    const toastId = 'toast-' + Date.now();
-    
-    const iconMap = {
-        success: 'bi-check-circle-fill',
-        error: 'bi-x-circle-fill',
-        warning: 'bi-exclamation-triangle-fill',
-        info: 'bi-info-circle-fill'
-    };
-    
-    const bgMap = {
-        success: 'bg-success',
-        error: 'bg-danger',
-        warning: 'bg-warning',
-        info: 'bg-info'
-    };
-    
-    const toastHTML = `
-        <div id="${toastId}" class="toast align-items-center text-white ${bgMap[type]} border-0" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 350px; font-size: 16px; margin-bottom: 12px;">
-            <div class="d-flex">
-                <div class="toast-body" style="padding: 12px 16px; font-weight: 500;">
-                    <i class="bi ${iconMap[type]} me-2"></i>
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    `;
-    
-    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-    
-    const toastElement = document.getElementById(toastId);
-    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
-    toast.show();
-    
-    toastElement.addEventListener('hidden.bs.toast', () => {
-        toastElement.remove();
-    });
-}
-
-// Check for flash session messages
-document.addEventListener('DOMContentLoaded', function() {
-    @if(session('success'))
-        showToast('{{ session('success') }}', 'success');
-    @endif
-    
-    @if(session('error'))
-        showToast('{{ session('error') }}', 'error');
-    @endif
-    
-    @if(session('warning'))
-        showToast('{{ session('warning') }}', 'warning');
-    @endif
-});
-
 // Hamburger Menu Toggle
 document.addEventListener('DOMContentLoaded', function() {
     const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -134,96 +97,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// function showToast(message, type = 'success') {
-//     const toastContainer = document.getElementById('toastContainer');
-//     const toastId = 'toast-' + Date.now();
-    
-//     const iconMap = {
-//         success: 'bi-check-circle-fill',
-//         error: 'bi-x-circle-fill',
-//         warning: 'bi-exclamation-triangle-fill',
-//         info: 'bi-info-circle-fill'
-//     };
-    
-//     const bgMap = {
-//         success: 'bg-success',
-//         error: 'bg-danger',
-//         warning: 'bg-warning',
-//         info: 'bg-info'
-//     };
-    
-//     const toastHTML = `
-//         <div id="${toastId}" class="toast align-items-center text-white ${bgMap[type]} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-//             <div class="d-flex">
-//                 <div class="toast-body">
-//                     <i class="bi ${iconMap[type]} me-2"></i>
-//                     ${message}
-//                 </div>
-//                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-//             </div>
-//         </div>
-//     `;
-    
-//     toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-    
-//     const toastElement = document.getElementById(toastId);
-//     const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
-//     toast.show();
-    
-//     toastElement.addEventListener('hidden.bs.toast', () => {
-//         toastElement.remove();
-//     });
-// }
-
-// // Form validation helper
-// function validateForm(form) {
-//     const requiredFields = form.querySelectorAll('[required]');
-//     let firstInvalidField = null;
-//     let isValid = true;
-    
-//     requiredFields.forEach(field => {
-//         field.classList.remove('is-invalid');
-        
-//         if (!field.value.trim()) {
-//             field.classList.add('is-invalid');
-//             isValid = false;
-//             if (!firstInvalidField) {
-//                 firstInvalidField = field;
-//             }
-//         }
-//     });
-    
-//     if (firstInvalidField) {
-//         firstInvalidField.focus();
-//         firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-//     }
-    
-//     return isValid;
-// }
-
-// // Clear invalid state on input
-// document.addEventListener('input', function(e) {
-//     if (e.target.classList.contains('is-invalid')) {
-//         e.target.classList.remove('is-invalid');
-//     }
-// });
-
-// // Check for flash toast message on page load
-// document.addEventListener('DOMContentLoaded', function() {
-//     const flashSuccess = sessionStorage.getItem('toast_success');
-//     const flashError = sessionStorage.getItem('toast_error');
-    
-//     if (flashSuccess) {
-//         showToast(flashSuccess, 'success');
-//         sessionStorage.removeItem('toast_success');
-//     }
-    
-//     if (flashError) {
-//         showToast(flashError, 'error');
-//         sessionStorage.removeItem('toast_error');
-//     }
-// });
-
 function adminLogout(event) {
     if (event) event.preventDefault();
     document.getElementById('admin-logout-form').submit();
@@ -232,3 +105,4 @@ function adminLogout(event) {
 @stack('scripts')
 </body>
 </html>
+
