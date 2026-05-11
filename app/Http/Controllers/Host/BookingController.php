@@ -41,15 +41,28 @@ class BookingController extends Controller
         $checkedInCount = (clone $baseQuery)->where('status', Booking::STATUS_CHECKED_IN)->count();
         $cancelledCount = (clone $baseQuery)->where('status', Booking::STATUS_CANCELLED)->count();
 
-        $query = (clone $baseQuery)->with(['homestay', 'user', 'payment']);
+        $cancelRequests = (clone $baseQuery)
+            ->with(['homestay', 'user', 'payment'])
+            ->where('cancel_status', 'pending')
+            ->latest('created_at')
+            ->paginate(10, ['*'], 'cancel_page')
+            ->withQueryString();
+
+        $query = (clone $baseQuery)->with(['homestay', 'user', 'payment'])
+            ->where(function($q) {
+                $q->whereNull('cancel_status')
+                  ->orWhere('cancel_status', '!=', 'pending');
+            });
 
         if (($status = $request->status) && in_array($status, $allowedStatuses, true)) {
             $query->where('status', $status);
         }
 
-        $bookings = $query->latest('created_at')->paginate(15)->withQueryString();
+        $bookings = $query->latest('created_at')->paginate(15, ['*'], 'page')->withQueryString();
+        
         return view('host.bookings.index', compact(
             'bookings',
+            'cancelRequests',
             'pendingCount',
             'successCount',
             'checkedInCount',

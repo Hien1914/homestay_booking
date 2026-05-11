@@ -66,7 +66,7 @@
                 <h5 class="mb-0 fw-bold h6 text-secondary" style="letter-spacing: 0.5px;">Doanh thu và lượng đặt phòng</h5>
             </div>
             <div class="card-body p-4">
-                <div class="admin-chart-container mb-3" style="height: 350px;">
+                <div class="admin-chart-container" style="height: 350px;">
                     <canvas id="revenueBookingChart"></canvas>
                 </div>
             </div>
@@ -78,7 +78,7 @@
                 <h5 class="mb-0 fw-bold h6 text-secondary" style="letter-spacing: 0.5px;">Trạng thái đặt phòng</h5>
             </div>
             <div class="card-body p-4">
-                <div class="admin-chart-container mb-3" style="height: 350px;">
+                <div class="admin-chart-container" style="height: 350px;">
                     <canvas id="bookingStatusChart"></canvas>
                 </div>
             </div>

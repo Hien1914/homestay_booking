@@ -129,6 +129,17 @@
                 </ul>
             </div>
 
+            <div class="policy-section mt-5" id="host-terms">
+                <hr class="mb-4">
+                <h2 class="policy-section-title text-uppercase">Phụ lục: Điều khoản dành riêng cho Chủ nhà (Host)</h2>
+                <ul class="mt-3">
+                    <li><strong>Quản lý chỗ nghỉ:</strong> Chủ nhà cam kết cung cấp thông tin, hình ảnh chính xác và phải liên tục cập nhật lịch trống phòng để tránh tình trạng khách đặt trùng (overbooking).</li>
+                    <li><strong>Nhận & Trả phòng:</strong> Chủ nhà có trách nhiệm nhắc nhở, hướng dẫn khách hàng nhấn nút xác nhận "Nhận phòng" và "Trả phòng" trên hệ thống NestAway để hoàn tất chu trình lưu trú hợp lệ.</li>
+                    <li><strong>Tài chính & Thanh toán:</strong> Nền tảng sẽ thu một khoản phí dịch vụ (hoa hồng) trên mỗi đơn đặt phòng thành công. Doanh thu được đối soát và thanh toán sau khi đơn hàng chuyển sang trạng thái "Hoàn thành".</li>
+                    <li><strong>Xử lý vi phạm:</strong> Tài khoản Đối tác có thể bị khóa vĩnh viễn nếu phát hiện gian lận, cung cấp thông tin giả mạo, hoặc tự ý hủy phòng của khách vô lý nhiều lần.</li>
+                </ul>
+            </div>
+
             <div class="policy-section">
                 <h2 class="policy-section-title">13. Liên hệ</h2>
                 <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ:</p>

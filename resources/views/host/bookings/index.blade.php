@@ -88,6 +88,73 @@
     </div>
 </div>
 
+<!-- Danh sách đơn xin hủy phòng -->
+@if($cancelRequests->count() > 0)
+<div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header bg-white py-3 border-light-subtle">
+        <h5 class="card-title mb-0 fw-bold h6 text-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>Đơn xin hủy phòng cần duyệt
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="admin-table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Homestay</th>
+                        <th>Khách hàng</th>
+                        <th class="text-center">Ngày nhận</th>
+                        <th class="text-center">Ngày trả</th>
+                        <th class="text-center">Tổng tiền</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Thanh toán</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($cancelRequests as $booking)
+                        <tr>
+                            <td class="ps-4"><span class="admin-id-badge">#{{ $booking->id }}</span></td>
+                            <td><div class="fw-bold small">{{ $booking->homestay->title }}</div></td>
+                            <td><div class="small">{{ $booking->user->full_name }}</div></td>
+                            <td class="text-center small">{{ $booking->check_in->format('d/m/Y') }}</td>
+                            <td class="text-center small">{{ $booking->check_out->format('d/m/Y') }}</td>
+                            <td class="text-center fw-bold text-success">{{ number_format($booking->total_amount) }}đ</td>
+                            <td class="text-center">
+                                <span class="admin-badge admin-badge-warning">Chờ duyệt hủy</span>
+                            </td>
+                            <td class="text-center">
+                                @if(!$booking->payment)
+                                    <span class="admin-badge admin-badge-pending">Đang chờ thanh toán</span>
+                                @else
+                                    <span class="admin-badge {{ $booking->payment->displayStatusBadgeClass() }}">{{ $booking->payment->displayStatusLabel() }}</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <div class="admin-actions d-flex justify-content-center gap-1">
+                                    <a href="{{ route('host.bookings.cancel-approve', ['booking' => $booking, 'action' => 'approve']) }}" class="admin-action-btn" style="color: var(--admin-success); border-color: var(--admin-success);" onclick="return confirm('Duyệt yêu cầu hủy?')" title="Duyệt hủy">
+                                        <i class="bi bi-check-circle"></i>
+                                    </a>
+                                    <a href="{{ route('host.bookings.cancel-approve', ['booking' => $booking, 'action' => 'reject']) }}" class="admin-action-btn admin-action-btn-danger" onclick="return confirm('Từ chối yêu cầu hủy?')" title="Từ chối hủy">
+                                        <i class="bi bi-x-circle"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @if($cancelRequests->hasPages())
+        <div class="mt-4 d-flex justify-content-center">
+            {{ $cancelRequests->links() }}
+        </div>
+        @endif
+    </div>
+</div>
+@endif
+
 <!-- Danh sách booking -->
 <div class="card border-0 shadow-sm rounded-3">
     <div class="card-header bg-white py-3 border-light-subtle">
@@ -121,33 +188,13 @@
                             <td class="text-center small">{{ $booking->check_out->format('d/m/Y') }}</td>
                             <td class="text-center fw-bold text-success">{{ number_format($booking->total_amount) }}đ</td>
                             <td class="text-center">
-                                @php
-                                    $statusClass = match ($booking->status) {
-                                        \App\Models\Booking::STATUS_PENDING => 'admin-badge-pending',
-                                        \App\Models\Booking::STATUS_CONFIRMED => 'admin-badge-confirmed',
-                                        \App\Models\Booking::STATUS_CHECKED_IN => 'admin-badge-ongoing',
-                                        \App\Models\Booking::STATUS_COMPLETED => 'admin-badge-success',
-                                        \App\Models\Booking::STATUS_CANCELLED => 'admin-badge-cancelled',
-                                        default => 'admin-badge-secondary',
-                                    };
-                                @endphp
-                                <span class="admin-badge {{ $statusClass }}">{{ $booking->statusLabel() }}</span>
+                                <span class="admin-badge {{ $booking->statusBadgeClass() }}">{{ $booking->statusLabel() }}</span>
                             </td>
                             <td class="text-center">
                                 @if(!$booking->payment)
-                                    <span class="admin-badge admin-badge-secondary">Chưa thanh toán</span>
+                                    <span class="admin-badge admin-badge-pending">Đang chờ thanh toán</span>
                                 @else
-                                    @php
-                                        $payClass = match ($booking->payment->payment_status) {
-                                            \App\Models\Payment::STATUS_SUCCESS => 'admin-badge-success',
-                                            \App\Models\Payment::STATUS_PENDING => ($booking->payment->paid_at ? 'admin-badge-info' : 'admin-badge-pending'),
-                                            default => 'admin-badge-secondary',
-                                        };
-                                        $payLabel = $booking->payment->payment_status === \App\Models\Payment::STATUS_PENDING && $booking->payment->paid_at
-                                            ? 'Chờ duyệt'
-                                            : $booking->payment->statusLabel();
-                                    @endphp
-                                    <span class="admin-badge {{ $payClass }}">{{ $payLabel }}</span>
+                                    <span class="admin-badge {{ $booking->payment->displayStatusBadgeClass() }}">{{ $booking->payment->displayStatusLabel() }}</span>
                                 @endif
                             </td>
                             <td class="text-center">
@@ -155,14 +202,6 @@
                                     <button type="button" class="admin-action-btn view-booking-detail" data-id="{{ $booking->id }}" data-url="{{ route('host.bookings.show', $booking) }}" title="Chi tiết">
                                         <i class="bi bi-eye"></i>
                                     </button>
-                                    @if($booking->cancel_status == 'pending')
-                                        <a href="{{ route('host.bookings.cancel-approve', ['booking' => $booking, 'action' => 'approve']) }}" class="admin-action-btn" style="color: var(--admin-success); border-color: var(--admin-success);" onclick="return confirm('Duyệt yêu cầu hủy?')" title="Duyệt hủy">
-                                            <i class="bi bi-check-circle"></i>
-                                        </a>
-                                        <a href="{{ route('host.bookings.cancel-approve', ['booking' => $booking, 'action' => 'reject']) }}" class="admin-action-btn admin-action-btn-danger" onclick="return confirm('Từ chối yêu cầu hủy?')" title="Từ chối hủy">
-                                            <i class="bi bi-x-circle"></i>
-                                        </a>
-                                    @endif
                                 </div>
                             </td>
                         </tr>

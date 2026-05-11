@@ -1,6 +1,6 @@
 <section class="container-setting">
   <div class="mb-4">
-    <h2 class="display-6 fw-bold" style="font-family: 'Google Sans', sans-serif;">Những Điểm Đến Phổ Biến</h2>
+    <h2 class="display-6" style="font-weight: 500; font-family: var(--font-google-sans)">Những Điểm Đến Phổ Biến</h2>
   </div>
   
   <div class="carousel-destination" id="destinations-carousel">

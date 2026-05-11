@@ -42,13 +42,7 @@
                 <div class="admin-detail-item">
                     <span class="admin-detail-label">Trạng thái</span>
                     <span class="admin-detail-value">
-                        <?php switch($booking->status):
-                            case ('pending'): ?> <span class="admin-badge admin-badge-pending">Chờ xác nhận</span> <?php break; ?>
-                            <?php case ('confirmed'): ?> <span class="admin-badge admin-badge-success">Thành công</span> <?php break; ?>
-                            <?php case ('checked_in'): ?> <span class="admin-badge admin-badge-ongoing">Đang ở</span> <?php break; ?>
-                            <?php case ('completed'): ?> <span class="admin-badge admin-badge-success">Hoàn thành</span> <?php break; ?>
-                            <?php case ('cancelled'): ?> <span class="admin-badge admin-badge-danger">Đã hủy</span> <?php break; ?>
-                        <?php endswitch; ?>
+                        <span class="admin-badge <?php echo e($booking->statusBadgeClass()); ?>"><?php echo e($booking->statusLabel()); ?></span>
                     </span>
                 </div>
                 <?php if($booking->cancel_status != 'none' && $booking->cancel_status): ?>
@@ -65,13 +59,7 @@
                 <div class="admin-detail-item">
                     <span class="admin-detail-label">Thanh toán</span>
                     <span class="admin-detail-value">
-                        <?php if($booking->payment->payment_status === \App\Models\Payment::STATUS_SUCCESS): ?>
-                            <span class="text-success small fw-medium">Đã thanh toán (<?php echo e($booking->payment->payment_method); ?>)</span>
-                        <?php elseif($booking->payment->paid_at): ?>
-                            <span class="text-info small fw-medium">Đã CK, chờ xác nhận</span>
-                        <?php else: ?>
-                            <span class="text-danger small fw-medium">Chưa thanh toán</span>
-                        <?php endif; ?>
+                        <span class="admin-badge <?php echo e($booking->payment->displayStatusBadgeClass()); ?>"><?php echo e($booking->payment->displayStatusLabel()); ?></span>
                     </span>
                 </div>
                 <?php endif; ?>

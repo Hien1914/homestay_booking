@@ -41,6 +41,40 @@
                 <div class="admin-stat-label">Tổng doanh thu</div>
             </div>
         </div>
+
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon admin-stat-icon-success">
+                <i class="bi bi-wallet2"></i>
+            </div>
+            <div class="admin-stat-content">
+                <div class="admin-stat-value">{{ number_format($successPayments ?? 0) }}</div>
+                <div class="admin-stat-label">Đã thanh toán</div>
+            </div>
+        </div>
+
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon admin-stat-icon-warning">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="admin-stat-content">
+                <div class="admin-stat-value">{{ number_format($pendingPaymentsCount ?? 0) }}</div>
+                <div class="admin-stat-label">Đang chờ thanh toán</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Chart -->
+    <div class="card border-0 shadow-sm mb-4 rounded-3">
+        <div class="card-header bg-white py-3 border-light-subtle">
+            <h5 class="card-title mb-0 fw-bold h6">
+                <i class="bi bi-graph-up-arrow me-2 text-primary"></i>Doanh thu theo ngày
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div style="height: 300px;">
+                <canvas id="paymentsRevenueChart"></canvas>
+            </div>
+        </div>
     </div>
 
     <!-- Filters -->
@@ -49,15 +83,24 @@
             <div class="row g-4 align-items-end">
                 <div class="col-lg-12">
                     <form method="GET" action="{{ route('admin.bookings') }}" class="row g-3 align-items-end">
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <label for="bookings_from_date" class="form-label small fw-bold text-secondary">Từ ngày</label>
                             <input type="date" id="bookings_from_date" name="from_date" class="form-control"
                                 value="{{ $fromDate }}">
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <label for="bookings_to_date" class="form-label small fw-bold text-secondary">Đến ngày</label>
                             <input type="date" id="bookings_to_date" name="to_date" class="form-control"
                                 value="{{ $toDate }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="bookings_payment_status" class="form-label small fw-bold text-secondary">Trạng thái thanh toán</label>
+                            <select id="bookings_payment_status" name="payment_status" class="form-select">
+                                <option value="">Tất cả</option>
+                                @foreach(($paymentStatuses ?? []) as $value => $label)
+                                    <option value="{{ $value }}" {{ ($paymentStatus ?? '') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-2 d-flex gap-2">
                             <button type="submit" class="admin-filter-btn w-100 justify-content-center">Lọc</button>
@@ -73,7 +116,7 @@
     <!-- Pending Approval Table -->
     <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
         <div class="card-header bg-white py-3 border-light-subtle d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0 fw-bold h6 text-secondary" style="letter-spacing: 0.5px;">Đơn cần duyệt</h5>
+            <h5 class="card-title mb-0 fw-bold h6 text-secondary" style="letter-spacing: 0.5px;">Đơn cần xử lý</h5>
         </div>
         <div class="card-body p-0">
             <div class="admin-table-wrap">
@@ -103,30 +146,50 @@
                                     <div class="small text-dark fw-medium">{{ optional($booking->check_in)->format('d/m/Y') }}</div>
                                     <div class="text-muted" style="font-size: 10px;">đến {{ optional($booking->check_out)->format('d/m/Y') }}</div>
                                 </td>
-                                <td><span class="fw-bold text-success small">{{ number_format((float) $booking->total_amount, 0, ',', '.') }}đ</span></td>
                                 <td>
-                                    @php
-                                        $statusClass = match ($booking->status) {
-                                            \App\Models\Booking::STATUS_PENDING => 'admin-badge-pending',
-                                            \App\Models\Booking::STATUS_CONFIRMED => 'admin-badge-confirmed',
-                                            \App\Models\Booking::STATUS_CHECKED_IN => 'admin-badge-ongoing',
-                                            \App\Models\Booking::STATUS_COMPLETED => 'admin-badge-success',
-                                            \App\Models\Booking::STATUS_CANCELLED => 'admin-badge-cancelled',
-                                            default => 'admin-badge-secondary',
-                                        };
-                                    @endphp
-                                    <span class="admin-badge {{ $statusClass }}">{{ $booking->statusLabel() }}</span>
+                                    <span class="fw-bold text-success small">{{ number_format((float) $booking->total_amount, 0, ',', '.') }}đ</span>
+                                    @if($booking->status === \App\Models\Booking::STATUS_CANCELLED)
+                                        <br>
+                                        <span class="badge bg-warning text-dark mt-1" style="font-size: 0.75rem;">Hoàn trả: {{ number_format((float) $booking->refund_amount, 0, ',', '.') }}đ ({{ $booking->refund_percent }}%)</span>
+                                    @endif
                                 </td>
-                                <td><span class="admin-badge admin-badge-info">Chờ duyệt</span></td>
+                                <td>
+                                    <span class="admin-badge {{ $booking->statusBadgeClass() }}">{{ $booking->statusLabel() }}</span>
+                                </td>
+                                <td>
+                                    @if($booking->payment)
+                                        <span class="admin-badge {{ $booking->payment->displayStatusBadgeClass() }}">{{ $booking->payment->displayStatusLabel() }}</span>
+                                    @else
+                                        <span class="admin-badge admin-badge-pending">Đang chờ thanh toán</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-1">
-                                        <form action="{{ route('admin.payments.confirm', $booking->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('PUT')
-                                            <button type="submit" class="admin-action-btn admin-action-btn-success" title="Duyệt thanh toán" onclick="return confirm('Xác nhận đã nhận thanh toán?');">
-                                                <i class="bi bi-check-lg"></i>
-                                            </button>
-                                        </form>
+                                        @if($booking->status === \App\Models\Booking::STATUS_CANCELLED)
+                                            <form action="{{ route('admin.payments.confirm', $booking->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="admin-action-btn admin-action-btn-success" title="Xác nhận hoàn tiền/xử lý" onclick="return confirm('Xác nhận đã xử lý hoàn tiền cho đơn hủy này?');">
+                                                    <i class="bi bi-check-all"></i>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('admin.payments.confirm', $booking->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="admin-action-btn admin-action-btn-success" title="Xác nhận đơn đặt phòng" onclick="return confirm('Xác nhận duyệt đơn đặt phòng này?');">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('admin.payments.confirm', $booking->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="payment_action" value="reject">
+                                                <button type="submit" class="admin-action-btn admin-action-btn-danger" title="Từ chối đơn đặt phòng" onclick="return confirm('Xác nhận từ chối đơn đặt phòng này?');">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                         <button type="button" class="admin-action-btn" title="Chi tiết đơn đặt phòng" onclick="showBookingDetail({{ $booking->id }})">
                                             <i class="bi bi-eye"></i>
                                         </button>
@@ -135,7 +198,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-5 small">Không có đơn nào đang chờ duyệt.</td>
+                                <td colspan="8" class="text-center text-muted py-5 small">Không có đơn đã thanh toán nào đang chờ duyệt.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -143,6 +206,67 @@
             </div>
             <div class="mt-4">
                 {{ $pendingApprovals->links() }}
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
+        <div class="card-header bg-white py-3 border-light-subtle d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0 fw-bold h6 text-secondary" style="letter-spacing: 0.5px;">Đơn chờ thanh toán</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Khách hàng</th>
+                            <th>Homestay</th>
+                            <th>Lịch trình</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Thanh toán</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($pendingPayments as $booking)
+                            <tr data-status="{{ $booking->status }}">
+                                <td><span class="fw-bold text-secondary">#{{ $booking->id }}</span></td>
+                                <td><div class="fw-bold text-dark small">{{ $booking->user?->full_name ?? 'Khách' }}</div></td>
+                                <td>
+                                    <div class="small fw-semibold text-dark text-truncate mx-auto" style="max-width: 150px;">{{ $booking->homestay?->title ?? '-' }}</div>
+                                    <div class="text-muted" style="font-size: 10px;">Mã: #{{ $booking->homestay_id }}</div>
+                                </td>
+                                <td>
+                                    <div class="small text-dark fw-medium">{{ optional($booking->check_in)->format('d/m/Y') }}</div>
+                                    <div class="text-muted" style="font-size: 10px;">đến {{ optional($booking->check_out)->format('d/m/Y') }}</div>
+                                </td>
+                                <td><span class="fw-bold text-success small">{{ number_format((float) $booking->total_amount, 0, ',', '.') }}đ</span></td>
+                                <td><span class="admin-badge {{ $booking->statusBadgeClass() }}">{{ $booking->statusLabel() }}</span></td>
+                                <td>
+                                    @if($booking->payment)
+                                        <span class="admin-badge {{ $booking->payment->displayStatusBadgeClass() }}">{{ $booking->payment->displayStatusLabel() }}</span>
+                                    @else
+                                        <span class="admin-badge admin-badge-pending">Đang chờ thanh toán</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <button type="button" class="admin-action-btn" title="Chi tiết đơn đặt phòng" onclick="showBookingDetail({{ $booking->id }})">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-5 small">Không có đơn nào đang chờ thanh toán.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4">
+                {{ $pendingPayments->links() }}
             </div>
         </div>
     </div>
@@ -192,47 +316,18 @@
                                         class="fw-bold text-success small">{{ number_format((float) $booking->total_amount, 0, ',', '.') }}đ</span>
                                 </td>
                                 <td>
-                                    @php
-                                        $statusClass = match ($booking->status) {
-                                            \App\Models\Booking::STATUS_PENDING => 'admin-badge-pending',
-                                            \App\Models\Booking::STATUS_CONFIRMED => 'admin-badge-confirmed',
-                                            \App\Models\Booking::STATUS_CHECKED_IN => 'admin-badge-ongoing',
-                                            \App\Models\Booking::STATUS_COMPLETED => 'admin-badge-success',
-                                            \App\Models\Booking::STATUS_CANCELLED => 'admin-badge-cancelled',
-                                            default => 'admin-badge-secondary',
-                                        };
-                                    @endphp
-                                    <span class="admin-badge {{ $statusClass }}">{{ $booking->statusLabel() }}</span>
+                                    <span class="admin-badge {{ $booking->statusBadgeClass() }}">{{ $booking->statusLabel() }}</span>
                                 </td>
                                 <td>
                                     @if($booking->payment)
-                                        @php
-                                            $payClass = match ($booking->payment->payment_status) {
-                                                \App\Models\Payment::STATUS_SUCCESS => 'admin-badge-success',
-                                                \App\Models\Payment::STATUS_PENDING => ($booking->payment->paid_at ? 'admin-badge-info' : 'admin-badge-pending'),
-                                                default => 'admin-badge-secondary',
-                                            };
-                                            $payLabel = $booking->payment->payment_status === \App\Models\Payment::STATUS_PENDING && $booking->payment->paid_at ? 'Chờ duyệt' : $booking->payment->statusLabel();
-                                        @endphp
-                                        <span class="admin-badge {{ $payClass }}">{{ $payLabel }}</span>
+                                        <span class="admin-badge {{ $booking->payment->displayStatusBadgeClass() }}">{{ $booking->payment->displayStatusLabel() }}</span>
                                     @else
-                                        <span class="admin-badge admin-badge-secondary">Chưa thanh toán</span>
+                                        <span class="admin-badge admin-badge-pending">Đang chờ thanh toán</span>
                                     @endif
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-1">
-                                        @if($booking->payment && $booking->payment->payment_status === \App\Models\Payment::STATUS_PENDING && $booking->payment->paid_at)
-                                            <form action="{{ route('admin.payments.confirm', $booking->id) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="admin-action-btn admin-action-btn-success"
-                                                    title="Duyệt thanh toán"
-                                                    onclick="return confirm('Xác nhận đã nhận thanh toán?');">
-                                                    <i class="bi bi-check-lg"></i>
-                                                </button>
-                                            </form>
-                                        @endif
+
                                         <button type="button" class="admin-action-btn" title="Chi tiết đơn đặt phòng"
                                             onclick="showBookingDetail({{ $booking->id }})">
                                             <i class="bi bi-eye"></i>
@@ -293,5 +388,106 @@
                     content.innerHTML = '<div class="alert alert-danger rounded-4">Lỗi tải dữ liệu. Vui lòng thử lại.</div>';
                 });
         }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var canvas = document.getElementById('paymentsRevenueChart');
+            if (!canvas) return;
+            var revenueSeries = @json($revenueData);
+
+            function getNiceStep(value) {
+                if (!value || value <= 0) return 100000;
+                var exponent = Math.pow(10, Math.floor(Math.log10(value)));
+                var fraction = value / exponent;
+                var niceFraction = 1;
+
+                if (fraction <= 1) {
+                    niceFraction = 1;
+                } else if (fraction <= 2) {
+                    niceFraction = 2;
+                } else if (fraction <= 5) {
+                    niceFraction = 5;
+                } else {
+                    niceFraction = 10;
+                }
+
+                return niceFraction * exponent;
+            }
+
+            var maxRevenue = Math.max.apply(null, revenueSeries.concat([0]));
+            var targetSegments = 5;
+            var stepSize = getNiceStep(maxRevenue / targetSegments);
+            var yAxisMax = stepSize * targetSegments;
+
+            new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: @json($chartLabels),
+                    datasets: [{
+                        label: 'Doanh thu',
+                        data: @json($revenueData),
+                        borderColor: '#3b82f6',
+                        backgroundColor: function (context) {
+                            const chart = context.chart;
+                            const { ctx, chartArea } = chart;
+                            if (!chartArea) return null;
+                            const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.02)');
+                            gradient.addColorStop(1, 'rgba(59, 130, 246, 0.15)');
+                            return gradient;
+                        },
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#3b82f6',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: '#3b82f6',
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 14 },
+                            callbacks: {
+                                label: function (context) {
+                                    return ' ' + new Intl.NumberFormat('vi-VN').format(context.raw || 0) + ' đ';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: yAxisMax,
+                            grid: { color: '#f1f5f9' },
+                            ticks: {
+                                count: 6,
+                                stepSize: stepSize,
+                                font: { size: 12 },
+                                callback: function (value) {
+                                    return new Intl.NumberFormat('vi-VN').format(value) + ' đ';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        });
     </script>
 @endpush

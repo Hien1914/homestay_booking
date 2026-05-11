@@ -189,6 +189,9 @@
 </div>
 
 @foreach($homestays as $homestay)
+    @php
+        $modalAvgRating = (float) ($homestay->reviews_avg_rating ?? 0);
+    @endphp
     <div class="modal fade" id="homestayModal{{ $homestay->id }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4">
@@ -217,8 +220,17 @@
                             <div class="mt-4 p-4 bg-light rounded-4">
                                 <h6 class="fw-bold text-dark mb-3"><i class="bi bi-person-circle me-2"></i>Chủ sở hữu</h6>
                                 <div class="d-flex align-items-center">
-                                    <div class="admin-user-avatar-sm me-3 bg-white shadow-sm" style="width: 45px; height: 45px; font-size: 1.2rem;">
-                                        {{ substr($homestay->owner->full_name, 0, 1) }}
+                                    <div class="admin-user-avatar-sm me-3 bg-white shadow-sm overflow-hidden d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; font-size: 1.2rem; border-radius: 50%;">
+                                        @if(!empty($homestay->owner?->avatar_url))
+                                            <img
+                                                src="{{ $homestay->owner->avatar_url }}"
+                                                alt="{{ $homestay->owner->full_name }}"
+                                                class="w-100 h-100 object-fit-cover"
+                                                style="border-radius: 50%;"
+                                            >
+                                        @else
+                                            {{ mb_strtoupper(mb_substr($homestay->owner?->full_name ?? 'H', 0, 1)) }}
+                                        @endif
                                     </div>
                                     <div>
                                         <div class="fw-bold text-dark">{{ $homestay->owner->full_name }}</div>
@@ -255,7 +267,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="small text-secondary mb-1">Đánh giá trung bình</div>
-                                        <div class="fw-bold text-dark"><i class="bi bi-star-fill text-warning me-2"></i>{{ number_format($avgRating, 1) }} / 5</div>
+                                        <div class="fw-bold text-dark"><i class="bi bi-star-fill text-warning me-2"></i>{{ number_format($modalAvgRating, 1) }} / 5</div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="small text-secondary mb-1">Số lượt đánh giá</div>
@@ -297,15 +309,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 p-4 pt-0 gap-2">
-                    <button class="admin-filter-clear-btn px-4" data-bs-dismiss="modal">Đóng cửa sổ</button>
-                    @if(!$homestay->is_approved)
+                @if(!$homestay->is_approved)
+                    <div class="modal-footer border-0 p-4 pt-0 gap-2">
                         <form action="{{ route('admin.homestays.approve', $homestay) }}" method="POST">
                             @csrf @method('PUT')
                             <button type="submit" class="admin-create-btn px-4">Duyệt chỗ nghỉ này</button>
                         </form>
-                    @endif
-                </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

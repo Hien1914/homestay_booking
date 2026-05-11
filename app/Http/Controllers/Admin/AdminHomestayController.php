@@ -15,7 +15,7 @@ class AdminHomestayController extends Controller
     public function index(Request $request)
     {
         $query = Homestay::with(['owner', 'destination'])
-            ->withCount('bookings')
+            ->withCount(['bookings', 'reviews'])
             ->withAvg('reviews', 'rating');
 
         if ($request->has('approved')) {
@@ -23,12 +23,22 @@ class AdminHomestayController extends Controller
         }
 
         $homestays = $query->latest()->paginate(15);
+        $totalHomestays = Homestay::count();
+        $sumAverageRatings = Homestay::query()
+            ->withAvg('reviews', 'rating')
+            ->get()
+            ->sum(function ($homestay) {
+                return (float) ($homestay->reviews_avg_rating ?? 0);
+            });
+        $systemAverageRating = $totalHomestays > 0
+            ? $sumAverageRatings / $totalHomestays
+            : 0;
 
         $stats = [
-            'total' => Homestay::count(),
+            'total' => $totalHomestays,
             'pending_approval' => Homestay::where('is_approved', false)->count(),
             'available' => Homestay::where('status', 'available')->count(),
-            'avgRating' => Homestay::withAvg('reviews', 'rating')->value('reviews_avg_rating') ?? 0,
+            'avgRating' => $systemAverageRating,
         ];
 
         return view('admin.homestays.index', compact('homestays', 'stats'));

@@ -48,7 +48,7 @@
             </h5>
         </div>
         <div class="card-body p-4">
-            <div style="height: 450px;">
+            <div style="height: 300px;">
                 <canvas id="paymentsRevenueChart"></canvas>
             </div>
         </div>
@@ -120,23 +120,10 @@
                                 </td>
                                 <td>
                                     <span
-                                        class="admin-badge <?php echo e($payment->statusBadgeClass()); ?>"><?php echo e($payment->statusLabel()); ?></span>
+                                        class="admin-badge <?php echo e($payment->displayStatusBadgeClass()); ?>"><?php echo e($payment->displayStatusLabel()); ?></span>
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-1">
-                                        <?php if($payment->payment_status === \App\Models\Payment::STATUS_PENDING && $payment->paid_at && $payment->booking): ?>
-                                            <form action="<?php echo e(route('admin.payments.confirm', $payment->booking->id)); ?>"
-                                                method="POST" class="d-inline">
-                                                <?php echo csrf_field(); ?>
-                                                <?php echo method_field('PUT'); ?>
-                                                <button type="submit" class="admin-action-btn"
-                                                    style="color: var(--admin-success); border-color: var(--admin-success);"
-                                                    title="Xác nhận đã nhận tiền"
-                                                    onclick="return confirm('Xác nhận admin đã nhận được khoản chuyển này?');">
-                                                    <i class="bi bi-check-circle"></i>
-                                                </button>
-                                            </form>
-                                        <?php endif; ?>
                                         <button type="button" class="admin-action-btn" title="Xem chi tiết"
                                             onclick="showPaymentDetail(<?php echo e($payment->id); ?>)">
                                             <i class="bi bi-eye"></i>
@@ -207,6 +194,31 @@
             document.addEventListener('DOMContentLoaded', function () {
                 var canvas = document.getElementById('paymentsRevenueChart');
                 if (!canvas) return;
+                var revenueSeries = <?php echo json_encode($revenueData, 15, 512) ?>;
+
+                function getNiceStep(value) {
+                    if (!value || value <= 0) return 100000;
+                    var exponent = Math.pow(10, Math.floor(Math.log10(value)));
+                    var fraction = value / exponent;
+                    var niceFraction = 1;
+
+                    if (fraction <= 1) {
+                        niceFraction = 1;
+                    } else if (fraction <= 2) {
+                        niceFraction = 2;
+                    } else if (fraction <= 5) {
+                        niceFraction = 5;
+                    } else {
+                        niceFraction = 10;
+                    }
+
+                    return niceFraction * exponent;
+                }
+
+                var maxRevenue = Math.max.apply(null, revenueSeries.concat([0]));
+                var targetSegments = 5; // 6 mốc chính bao gồm mốc 0
+                var stepSize = getNiceStep(maxRevenue / targetSegments);
+                var yAxisMax = stepSize * targetSegments;
 
                 new Chart(canvas, {
                     type: 'line',
@@ -257,8 +269,12 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
+                                min: 0,
+                                max: yAxisMax,
                                 grid: { color: '#f1f5f9' },
                                 ticks: {
+                                    count: 6,
+                                    stepSize: stepSize,
                                     font: { size: 12 },
                                     callback: function (value) {
                                         return new Intl.NumberFormat('vi-VN').format(value) + ' đ';

@@ -99,8 +99,7 @@
                         <tr>
                             <td><span class="admin-id-badge">#<?php echo e($payout->id); ?></span></td>
                             <td>
-                                <div class="fw-bold"><?php echo e($payout->host->name); ?></div>
-                                <div class="small text-muted"><?php echo e($payout->host->email); ?></div>
+                                <div class="fw-bold"><?php echo e($payout->host->full_name); ?></div>
                             </td>
                             <td class="fw-bold text-success"><?php echo e(number_format($payout->amount)); ?>đ</td>
                             <td><?php echo e($payout->created_at->format('d/m/Y H:i')); ?></td>

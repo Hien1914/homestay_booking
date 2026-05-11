@@ -51,6 +51,16 @@
                 <p>Thông tin cá nhân sẽ được lưu trữ trong thời gian cần thiết để cung cấp dịch vụ hoặc theo yêu cầu của pháp luật. Khi không còn cần thiết, dữ liệu sẽ được xóa hoặc ẩn danh để đảm bảo an toàn.</p>
             </div>
 
+            <div class="policy-section mt-5" id="host-privacy">
+                <hr class="mb-4">
+                <h2 class="policy-section-title text-uppercase">Phụ lục: Chính sách bảo mật dành riêng cho Chủ nhà (Host)</h2>
+                <ul class="mt-3">
+                    <li><strong>Thu thập bổ sung:</strong> Ngoài các thông tin cơ bản, hệ thống yêu cầu thông tin định danh (CMND/CCCD/Hộ chiếu) và tài khoản ngân hàng nhằm mục đích xác minh đối tác và chi trả doanh thu.</li>
+                    <li><strong>Chia sẻ thông tin:</strong> Thông tin liên hệ của bạn chỉ được cung cấp cho khách hàng sau khi họ đặt phòng thành công. Chúng tôi cam kết tuyệt đối không trao đổi hay bán dữ liệu tài chính của bạn cho bên thứ ba.</li>
+                    <li><strong>Lưu trữ & Bảo mật:</strong> Các dữ liệu nhạy cảm của Đối tác được mã hóa an toàn và chỉ lưu trữ trong thời gian bạn tiếp tục duy trì hoạt động trên nền tảng NestAway.</li>
+                </ul>
+            </div>
+
             <div class="policy-section">
                 <h2 class="policy-section-title">8. Liên hệ</h2>
                 <p>Nếu bạn có bất kỳ thắc mắc nào liên quan đến chính sách bảo mật, vui lòng liên hệ:</p>

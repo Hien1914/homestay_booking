@@ -38,7 +38,9 @@
 }
 
 .about-hero-image img {
+    width: 100%;
     height: 400px;
+    display: block;
     object-fit: cover;
 }
 
@@ -68,9 +70,17 @@
     transition: all 0.3s ease;
 }
 
+.mission-vision-card .card-icon i {
+    transition: color 0.3s ease;
+}
+
 .mission-vision-card:hover .card-icon {
     background-color: var(--green-600);
     color: var(--white);
+}
+
+.mission-vision-card:hover .card-icon i {
+    color: var(--white) !important;
 }
 
 .mission-vision-card h3 {

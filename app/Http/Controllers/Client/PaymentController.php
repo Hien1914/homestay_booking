@@ -104,12 +104,12 @@ class PaymentController extends Controller
                 'booking_id' => $booking->id,
                 'payment_method' => 'bank_transfer',
                 'amount' => $booking->total_amount,
-                'payment_status' => Payment::STATUS_PENDING,
+                'payment_status' => Payment::STATUS_SUCCESS,
                 'paid_at' => now(),
             ]);
         } else {
             $booking->payment->update([
-                'payment_status' => Payment::STATUS_PENDING,
+                'payment_status' => Payment::STATUS_SUCCESS,
                 'paid_at' => now(),
             ]);
         }

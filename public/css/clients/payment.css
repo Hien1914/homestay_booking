@@ -1,4 +1,4 @@
-.payment-page { background: #f8fafc; min-height: calc(100vh - var(--nav-height)); padding: 1.5rem 0 3rem; }
+.payment-page {min-height: calc(100vh - var(--nav-height)); padding: 1.5rem 0 3rem; }
 .payment-page-title { margin: 0 0 1.5rem; font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
 .payment-layout { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; align-items: start; }
 @media (max-width: 991px) { .payment-layout { grid-template-columns: 1fr; } }

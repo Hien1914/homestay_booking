@@ -23,11 +23,13 @@ class AdminDataController extends Controller
         $request->validate([
             'from_date' => ['nullable', 'date'],
             'to_date' => ['nullable', 'date', 'after_or_equal:from_date'],
+            'payment_status' => ['nullable', 'in:pending,success,failed'],
         ]);
 
         $hasPaymentsTable = Schema::hasTable('payments');
         $fromDate = $request->query('from_date');
         $toDate = $request->query('to_date');
+        $paymentStatus = $request->query('payment_status');
 
         $usersQuery = User::query()->where('role', 'user');
         $homestaysQuery = Homestay::query();
@@ -51,12 +53,12 @@ class AdminDataController extends Controller
         $recentHomestays = (clone $homestaysQuery)
             ->with('destination')
             ->latest()
-            ->limit(10)
+            ->limit(5)
             ->get();
 
         $recentUsers = (clone $usersQuery)
             ->latest()
-            ->limit(10)
+            ->limit(5)
             ->get();
 
         $popularHomestaysQuery = Homestay::query()
@@ -163,6 +165,7 @@ class AdminDataController extends Controller
 
         $fromDate = $request->query('from_date');
         $toDate = $request->query('to_date');
+        $searchName = $request->query('search_name');
 
         $usersQuery = User::query()
             ->whereIn('role', ['user', 'host'])
@@ -209,7 +212,16 @@ class AdminDataController extends Controller
             }
         }
 
-        $users = $usersQuery->latest()->paginate(15)->withQueryString();
+        $tableQuery = clone $usersQuery;
+        if ($searchName) {
+            $tableQuery->where('full_name', 'LIKE', '%' . $searchName . '%');
+        }
+
+        $users = $tableQuery->latest()->paginate(15)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('admin.partials.users_table', compact('users'));
+        }
 
         return view('admin.users', [
             'users' => $users,
@@ -222,6 +234,7 @@ class AdminDataController extends Controller
             'ageData' => $ageData,
             'fromDate' => $fromDate,
             'toDate' => $toDate,
+            'searchName' => $searchName,
         ]);
     }
 
@@ -230,11 +243,13 @@ class AdminDataController extends Controller
         $request->validate([
             'from_date' => ['nullable', 'date'],
             'to_date' => ['nullable', 'date', 'after_or_equal:from_date'],
+            'payment_status' => ['nullable', 'in:pending,success,failed'],
         ]);
 
         $hasPaymentsTable = Schema::hasTable('payments');
         $fromDate = $request->query('from_date');
         $toDate = $request->query('to_date');
+        $paymentStatus = $request->query('payment_status');
 
         $baseQuery = Booking::query()
             ->with($hasPaymentsTable ? ['user', 'homestay', 'payment'] : ['user', 'homestay'])
@@ -242,28 +257,59 @@ class AdminDataController extends Controller
 
         $this->applyDateRange($baseQuery, $fromDate, $toDate);
 
-        $pendingApprovalsQuery = (clone $baseQuery)->whereHas('payment', function ($query) {
-            $query->where('payment_status', Payment::STATUS_PENDING)
-                ->whereNotNull('paid_at');
-        });
+        if ($hasPaymentsTable && $paymentStatus) {
+            $baseQuery->whereHas('payment', function ($query) use ($paymentStatus) {
+                $query->where('payment_status', $paymentStatus);
+            });
+        }
 
-        $bookingsQuery = (clone $baseQuery)->where(function ($query) {
-            $query->whereDoesntHave('payment')
-                ->orWhereHas('payment', function ($paymentQuery) {
-                    $paymentQuery->where('payment_status', '!=', Payment::STATUS_PENDING)
-                        ->orWhereNull('paid_at');
-                });
-        });
+        $pendingApprovalsQuery = (clone $baseQuery)
+            ->where(function ($query) {
+                $query->where('status', Booking::STATUS_PENDING)
+                      ->whereHas('payment', function ($q) {
+                          $q->where('payment_status', Payment::STATUS_SUCCESS);
+                      });
+            })
+            ->orWhere(function ($query) {
+                $query->where('status', Booking::STATUS_CANCELLED)
+                      ->where('cancel_status', 'approved')
+                      ->whereDoesntHave('refund');
+            });
+
+        $pendingPaymentsQuery = (clone $baseQuery)
+            ->where('status', Booking::STATUS_PENDING)
+            ->where(function ($query) {
+                $query->whereDoesntHave('payment')
+                    ->orWhereHas('payment', function ($paymentQuery) {
+                        $paymentQuery->where('payment_status', Payment::STATUS_PENDING);
+                    });
+            });
+
+        $bookingsQuery = (clone $baseQuery)
+            ->where('status', '!=', Booking::STATUS_PENDING);
 
         $pendingApprovals = $pendingApprovalsQuery
             ->paginate(10, ['*'], 'pending_page')
+            ->withQueryString();
+        $pendingPayments = $pendingPaymentsQuery
+            ->paginate(10, ['*'], 'unpaid_page')
             ->withQueryString();
         $bookings = $bookingsQuery
             ->paginate(15, ['*'], 'bookings_page')
             ->withQueryString();
 
+        $paymentsSummary = $hasPaymentsTable
+            ? Payment::query()
+                ->when($fromDate, fn ($query) => $query->whereDate('created_at', '>=', $fromDate))
+                ->when($toDate, fn ($query) => $query->whereDate('created_at', '<=', $toDate))
+                ->get(['amount', 'payment_status'])
+            : collect();
+
+        [$chartLabels, $revenueData] = $this->buildRevenueChartData($fromDate, $toDate, 10);
+
         return view('admin.bookings', [
             'pendingApprovals' => $pendingApprovals,
+            'pendingPayments' => $pendingPayments,
             'bookings' => $bookings,
             'totalBookings' => (clone $baseQuery)->count(),
             'confirmedBookings' => (clone $baseQuery)->where('status', Booking::STATUS_CONFIRMED)->count(),
@@ -271,6 +317,12 @@ class AdminDataController extends Controller
             'totalRevenue' => $hasPaymentsTable
                 ? (clone $baseQuery)->whereHas('payment', fn ($query) => $query->where('payment_status', Payment::STATUS_SUCCESS))->sum('total_amount')
                 : 0,
+            'successPayments' => $paymentsSummary->where('payment_status', Payment::STATUS_SUCCESS)->count(),
+            'pendingPaymentsCount' => $paymentsSummary->where('payment_status', Payment::STATUS_PENDING)->count(),
+            'paymentStatuses' => Payment::statuses(),
+            'paymentStatus' => $paymentStatus,
+            'chartLabels' => $chartLabels,
+            'revenueData' => $revenueData,
             'fromDate' => $fromDate,
             'toDate' => $toDate,
         ]);
@@ -287,78 +339,7 @@ class AdminDataController extends Controller
         return redirect()->route('admin.bookings');
     }
 
-    public function payments(Request $request)
-    {
-        if (!Schema::hasTable('payments')) {
-            return redirect()->route('admin.dashboard')->with('error', 'Bảng payments chưa được tạo. Hãy chạy migrate trước.');
-        }
 
-        $search = trim((string) $request->query('search'));
-        $status = $request->query('status');
-        $fromDate = $request->query('from_date');
-        $toDate = $request->query('to_date');
-
-        $paymentsQuery = Payment::query()
-            ->with(['booking.user', 'booking.homestay'])
-            ->latest('created_at');
-
-        $this->applyDateRange($paymentsQuery, $fromDate, $toDate);
-
-        if ($status && in_array($status, array_keys(Payment::statuses()), true)) {
-            $paymentsQuery->where('payment_status', $status);
-        }
-
-        if ($search !== '') {
-            $paymentsQuery->where(function ($query) use ($search) {
-                $query->whereHas('booking', function ($bookingQuery) use ($search) {
-                    $bookingQuery->where('id', 'like', '%' . $search . '%')
-                        ->orWhereHas('user', function ($userQuery) use ($search) {
-                            $userQuery->where('full_name', 'like', '%' . $search . '%')
-                                ->orWhere('email', 'like', '%' . $search . '%');
-                        })
-                        ->orWhereHas('homestay', function ($homestayQuery) use ($search) {
-                            $homestayQuery->where('title', 'like', '%' . $search . '%');
-                        });
-                });
-            });
-        }
-
-        $payments = $paymentsQuery->paginate(15)->withQueryString();
-
-        $allPayments = Payment::query();
-        $this->applyDateRange($allPayments, $fromDate, $toDate);
-        $allPayments = $allPayments->get(['amount', 'payment_status']);
-
-        [$chartLabels, $revenueData] = $this->buildRevenueChartData($fromDate, $toDate, 10);
-
-        return view('admin.payments.index', [
-            'payments' => $payments,
-            'totalRevenue' => $allPayments->where('payment_status', Payment::STATUS_SUCCESS)->sum('amount'),
-            'successPayments' => $allPayments->where('payment_status', Payment::STATUS_SUCCESS)->count(),
-            'pendingPayments' => $allPayments->where('payment_status', Payment::STATUS_PENDING)->count(),
-            'search' => $search,
-            'status' => $status,
-            'statuses' => Payment::statuses(),
-            'chartLabels' => $chartLabels,
-            'revenueData' => $revenueData,
-            'fromDate' => $fromDate,
-            'toDate' => $toDate,
-        ]);
-    }
-
-    public function paymentShow(Payment $payment)
-    {
-        if (!Schema::hasTable('payments')) {
-            return redirect()->route('admin.dashboard')->with('error', 'Bảng payments chưa được tạo. Hãy chạy migrate trước.');
-        }
-        $payment->load(['booking.user', 'booking.homestay']);
-
-        if (request()->ajax() || request()->wantsJson()) {
-            return view('admin.payments.show_partial', compact('payment'));
-        }
-
-        return view('admin.payments.show', compact('payment'));
-    }
 
     public function promotions(Request $request)
     {
@@ -459,24 +440,43 @@ class AdminDataController extends Controller
         ]);
     }
 
-    public function confirmPayment(Booking $booking)
+    public function confirmPayment(Request $request, Booking $booking)
     {
+        if ($booking->status === Booking::STATUS_CANCELLED && $booking->cancel_status === 'approved') {
+            \App\Models\Refund::firstOrCreate(
+                ['booking_id' => $booking->id],
+                ['amount' => $booking->refund_amount, 'status' => 'approved']
+            );
+            return back()->with('success', 'Đã xử lý hoàn tiền cho đơn hủy #' . $booking->id);
+        }
+
         if (!$booking->payment) {
             return back()->with('error', 'Booking chưa có thông tin thanh toán.');
         }
 
-        if (!$booking->payment->paid_at) {
-            return back()->with('error', 'Thanh toán này chưa được khách xác nhận chuyển khoản.');
+        if ($booking->status !== Booking::STATUS_PENDING) {
+            return back()->with('error', 'Đơn đặt phòng này không còn ở trạng thái chờ duyệt.');
+        }
+
+        if (!$booking->payment->isPendingApproval()) {
+            return back()->with('error', 'Đơn đặt phòng này chưa đủ điều kiện duyệt.');
+        }
+
+        $action = $request->input('payment_action', 'confirm');
+
+        if ($action === 'reject') {
+            \DB::transaction(function () use ($booking) {
+                $booking->update(['status' => Booking::STATUS_CANCELLED]);
+            });
+
+            return back()->with('success', 'Đã từ chối đơn đặt phòng #' . $booking->id);
         }
 
         \DB::transaction(function () use ($booking) {
             $booking->update(['status' => Booking::STATUS_CONFIRMED]);
-            $booking->payment->update([
-                'payment_status' => Payment::STATUS_SUCCESS,
-            ]);
         });
 
-        return back()->with('success', 'Đã xác nhận thanh toán cho booking #' . $booking->id);
+        return back()->with('success', 'Đã xác nhận đơn đặt phòng #' . $booking->id);
     }
 
     private function applyDateRange($query, ?string $fromDate, ?string $toDate): void

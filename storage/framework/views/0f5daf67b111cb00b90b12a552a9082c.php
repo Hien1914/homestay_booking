@@ -89,139 +89,81 @@
     </div>
 
     <div class="card border-0 shadow-sm rounded-3">
-        <div class="card-header bg-white py-3 border-light-subtle">
+        <div class="card-header bg-white py-3 border-light-subtle d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0 fw-bold h6">
                 <i class="bi bi-people me-2 text-primary"></i>Danh sách tài khoản
             </h5>
+            <form id="search-users-form" action="<?php echo e(route('admin.users')); ?>" method="GET" class="d-flex" style="width: 280px;">
+                <?php if(request('from_date')): ?> <input type="hidden" name="from_date" value="<?php echo e(request('from_date')); ?>"> <?php endif; ?>
+                <?php if(request('to_date')): ?> <input type="hidden" name="to_date" value="<?php echo e(request('to_date')); ?>"> <?php endif; ?>
+                <input type="text" name="search_name" class="form-control form-control-sm" placeholder="Tìm kiếm theo tên..." value="<?php echo e($searchName ?? ''); ?>">
+                <button type="submit" class="btn btn-success btn-sm ms-2 rounded-4"><i class="bi bi-search"></i></button>
+            </form>
         </div>
-        <div class="card-body p-0">
-            <div class="admin-table-wrap">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Người dùng</th>
-                            <th>Email</th>
-                            <th>Vai trò</th>
-                            <th>SĐT</th>
-                            <th>Ngân hàng</th>
-                            <th>Số tài khoản</th>
-                            <th>Giới tính</th>
-                            <th>Ngày sinh</th>
-                            <th>Độ tuổi</th>
-                            <th>Lượt đặt</th>
-                            <th>Ngày ĐK</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $__empty_1 = true; $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                            <tr>
-                                <td><span class="admin-id-badge">#<?php echo e($user->id); ?></span></td>
-                                <td class="fw-bold"><?php echo e($user->full_name); ?></td>
-                                <td><?php echo e($user->email); ?></td>
-                                <td>
-                                    <?php if($user->role === 'host'): ?>
-                                        <span class="admin-badge admin-badge-success">Host</span>
-                                    <?php else: ?>
-                                        <span class="admin-badge admin-badge-info">User</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?php echo e($user->phone ?: '-'); ?></td>
-                                <td><?php echo e($user->bank_name ?: '-'); ?></td>
-                                <td><?php echo e($user->bank_account_number ?: '-'); ?></td>
-                                <td>
-                                    <?php
-                                        $genderText = match ($user->gender) {
-                                            'male' => 'Nam',
-                                            'female' => 'Nữ',
-                                            'other' => 'Khác',
-                                            default => '-',
-                                        };
-                                    ?>
-                                    <?php echo e($genderText); ?>
-
-                                </td>
-                                <td><?php echo e(optional($user->birthday)->format('d/m/Y') ?: '-'); ?></td>
-                                <td><?php echo e($user->age ?: '-'); ?></td>
-                                <td><span class="admin-badge admin-badge-ongoing"><?php echo e($user->bookings_count); ?></span></td>
-                                <td><?php echo e(optional($user->created_at)->format('d/m/Y')); ?></td>
-                                <td>
-                                    <div class="d-flex justify-content-center">
-                                        <button type="button" class="admin-action-btn js-open-user-modal" title="Xem chi tiết"
-                                            data-user-name="<?php echo e($user->full_name); ?>" data-user-email="<?php echo e($user->email); ?>"
-                                            data-user-role="<?php echo e($user->role === 'host' ? 'Host' : 'User'); ?>"
-                                            data-user-phone="<?php echo e($user->phone ?: '-'); ?>" data-user-gender="<?php echo e($genderText); ?>"
-                                            data-user-bank-name="<?php echo e($user->bank_name ?: '-'); ?>"
-                                            data-user-bank-account="<?php echo e($user->bank_account_number ?: '-'); ?>"
-                                            data-user-birthday="<?php echo e(optional($user->birthday)->format('d/m/Y') ?: '-'); ?>"
-                                            data-user-age="<?php echo e($user->age ?: '-'); ?>">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                            <tr>
-                                <td colspan="13" class="text-center text-muted py-4">Chưa có tài khoản nào.</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="mt-3">
-                <?php echo e($users->links()); ?>
-
-            </div>
+        <div id="users-table-wrapper">
+            <?php echo $__env->make('admin.partials.users_table', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
         </div>
+
     </div>
 
-    <div class="admin-modal" id="userDetailModal" hidden>
-        <div class="admin-modal-backdrop"></div>
-        <div class="admin-modal-dialog">
-            <div class="admin-modal-head">
-                <h3>Chi tiết người dùng</h3>
-                <button type="button" class="admin-modal-close" id="closeUserDetailModal">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="admin-detail-list">
-                <div class="admin-detail-item">
-                    <span class="admin-detail-label">Họ và tên</span>
-                    <span class="admin-detail-value" id="modalUserName"></span>
+    <div class="modal fade" id="userDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-light-subtle">
+                    <h5 class="modal-title fw-bold">Chi tiết người dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="admin-detail-item">
-                    <span class="admin-detail-label">Email</span>
-                    <span class="admin-detail-value" id="modalUserEmail"></span>
-                </div>
-                <div class="admin-detail-item">
-                    <span class="admin-detail-label">Vai trò</span>
-                    <span class="admin-detail-value" id="modalUserRole"></span>
-                </div>
-                <div class="admin-detail-item">
-                    <span class="admin-detail-label">Số điện thoại</span>
-                    <span class="admin-detail-value" id="modalUserPhone"></span>
-                </div>
-                <div class="admin-detail-item">
-                    <span class="admin-detail-label">Ngân hàng</span>
-                    <span class="admin-detail-value" id="modalUserBankName"></span>
-                </div>
-                <div class="admin-detail-item">
-                    <span class="admin-detail-label">Số tài khoản</span>
-                    <span class="admin-detail-value" id="modalUserBankAccount"></span>
-                </div>
-                <div class="admin-detail-item">
-                    <span class="admin-detail-label">Giới tính</span>
-                    <span class="admin-detail-value" id="modalUserGender"></span>
-                </div>
-                <div class="admin-detail-item">
-                    <span class="admin-detail-label">Ngày sinh</span>
-                    <span class="admin-detail-value" id="modalUserBirthday"></span>
-                </div>
-                <div class="admin-detail-item">
-                    <span class="admin-detail-label">Độ tuổi</span>
-                    <span class="admin-detail-value" id="modalUserAge"></span>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle mb-0">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 35%;">ID</th>
+                                    <td id="modalUserId"></td>
+                                </tr>
+                                <tr>
+                                    <th>Họ và tên</th>
+                                    <td id="modalUserName"></td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td id="modalUserEmail"></td>
+                                </tr>
+                                <tr>
+                                    <th>Vai trò</th>
+                                    <td id="modalUserRole"></td>
+                                </tr>
+                                <tr>
+                                    <th>Số điện thoại</th>
+                                    <td id="modalUserPhone"></td>
+                                </tr>
+                                <tr>
+                                    <th>Ngân hàng</th>
+                                    <td id="modalUserBankName"></td>
+                                </tr>
+                                <tr>
+                                    <th>Số tài khoản</th>
+                                    <td id="modalUserBankAccount"></td>
+                                </tr>
+                                <tr>
+                                    <th>Giới tính</th>
+                                    <td id="modalUserGender"></td>
+                                </tr>
+                                <tr>
+                                    <th>Ngày sinh</th>
+                                    <td id="modalUserBirthday"></td>
+                                </tr>
+                                <tr>
+                                    <th>Lượt đặt</th>
+                                    <td id="modalUserBookings"></td>
+                                </tr>
+                                <tr>
+                                    <th>Ngày đăng ký</th>
+                                    <td id="modalUserCreatedAt"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -289,38 +231,61 @@
                 }
             }
 
-            const modal = document.getElementById('userDetailModal');
-            const closeButton = document.getElementById('closeUserDetailModal');
-            const backdrop = modal?.querySelector('.admin-modal-backdrop');
-            const openButtons = document.querySelectorAll('.js-open-user-modal');
-
-            if (!modal || !closeButton || !backdrop) {
-                return;
-            }
-
-            const closeModal = () => {
-                modal.hidden = true;
-            };
-
-            openButtons.forEach((button) => {
-                button.addEventListener('click', function () {
-                    document.getElementById('modalUserName').textContent = this.dataset.userName;
-                    document.getElementById('modalUserEmail').textContent = this.dataset.userEmail;
-                    document.getElementById('modalUserRole').textContent = this.dataset.userRole;
-                    document.getElementById('modalUserPhone').textContent = this.dataset.userPhone;
-                    document.getElementById('modalUserBankName').textContent = this.dataset.userBankName;
-                    document.getElementById('modalUserBankAccount').textContent = this.dataset.userBankAccount;
-                    document.getElementById('modalUserGender').textContent = this.dataset.userGender;
-                    document.getElementById('modalUserBirthday').textContent = this.dataset.userBirthday;
-                    document.getElementById('modalUserAge').textContent = this.dataset.userAge;
-                    modal.hidden = false;
+            function attachModalListeners() {
+                const openButtons = document.querySelectorAll('.js-open-user-modal');
+                if (!openButtons.length) return;
+                
+                openButtons.forEach((button) => {
+                    button.addEventListener('click', function () {
+                        document.getElementById('modalUserId').textContent = this.dataset.userId;
+                        document.getElementById('modalUserName').textContent = this.dataset.userName;
+                        document.getElementById('modalUserEmail').textContent = this.dataset.userEmail;
+                        document.getElementById('modalUserRole').textContent = this.dataset.userRole;
+                        document.getElementById('modalUserPhone').textContent = this.dataset.userPhone;
+                        document.getElementById('modalUserBankName').textContent = this.dataset.userBankName;
+                        document.getElementById('modalUserBankAccount').textContent = this.dataset.userBankAccount;
+                        document.getElementById('modalUserGender').textContent = this.dataset.userGender;
+                        document.getElementById('modalUserBirthday').textContent = this.dataset.userBirthday;
+                        document.getElementById('modalUserBookings').textContent = this.dataset.userBookings;
+                        document.getElementById('modalUserCreatedAt').textContent = this.dataset.userCreatedAt;
+                    });
                 });
-            });
+            }
+            
+            attachModalListeners();
 
-            closeButton.addEventListener('click', closeModal);
-            backdrop.addEventListener('click', closeModal);
+            // AJAX Search
+            const searchForm = document.getElementById('search-users-form');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const queryString = new URLSearchParams(formData).toString();
+                    
+                    // Show a simple loading state if needed
+                    const tableWrapper = document.getElementById('users-table-wrapper');
+                    tableWrapper.style.opacity = '0.5';
+
+                    fetch(`${this.action}?${queryString}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        tableWrapper.innerHTML = html;
+                        tableWrapper.style.opacity = '1';
+                        attachModalListeners(); // Re-attach listeners to new buttons
+                    })
+                    .catch(error => {
+                        console.error('Error fetching search results:', error);
+                        tableWrapper.style.opacity = '1';
+                    });
+                });
+            }
         });
     </script>
 <?php $__env->stopPush(); ?>
+
 
 <?php echo $__env->make('admin.layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Study\KLTN\homestay_booking\resources\views/admin/users.blade.php ENDPATH**/ ?>

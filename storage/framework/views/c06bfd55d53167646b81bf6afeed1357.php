@@ -28,6 +28,8 @@
                         <th>Khách hàng</th>
                         <th>Email</th>
                         <th class="text-center">Số điện thoại</th>
+                        <th class="text-center">Ngân hàng</th>
+                        <th class="text-center">Số tài khoản</th>
                         <th class="text-center">Số lần đặt</th>
                         <th class="text-end pe-4">Tổng chi tiêu</th>
                     </tr>
@@ -46,6 +48,12 @@
                                 <div class="text-muted"><?php echo e($customer->phone ?? 'Chưa cập nhật'); ?></div>
                             </td>
                             <td class="text-center">
+                                <div class="text-muted"><?php echo e($customer->bank_name ?? 'Chưa cập nhật'); ?></div>
+                            </td>
+                            <td class="text-center">
+                                <div class="text-muted"><?php echo e($customer->bank_account_number ?? 'Chưa cập nhật'); ?></div>
+                            </td>
+                            <td class="text-center">
                                 <span class="admin-badge admin-badge-success"><?php echo e($customer->bookings_count); ?></span>
                             </td>
                             <td class="text-end pe-4">
@@ -53,7 +61,7 @@
                             </td>
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                        <tr><td colspan="6" class="text-center text-muted py-5">Chưa có khách hàng nào.</td></tr>
+                        <tr><td colspan="8" class="text-center text-muted py-5">Chưa có khách hàng nào.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -67,4 +75,5 @@
     </div>
 </div>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('host.layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Study\KLTN\homestay_booking\resources\views/host/customers.blade.php ENDPATH**/ ?>

@@ -88,6 +88,74 @@
     </div>
 </div>
 
+<!-- Danh sách đơn xin hủy phòng -->
+<?php if($cancelRequests->count() > 0): ?>
+<div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header bg-white py-3 border-light-subtle">
+        <h5 class="card-title mb-0 fw-bold h6 text-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>Đơn xin hủy phòng cần duyệt
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="admin-table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Homestay</th>
+                        <th>Khách hàng</th>
+                        <th class="text-center">Ngày nhận</th>
+                        <th class="text-center">Ngày trả</th>
+                        <th class="text-center">Tổng tiền</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Thanh toán</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $__currentLoopData = $cancelRequests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $booking): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <tr>
+                            <td class="ps-4"><span class="admin-id-badge">#<?php echo e($booking->id); ?></span></td>
+                            <td><div class="fw-bold small"><?php echo e($booking->homestay->title); ?></div></td>
+                            <td><div class="small"><?php echo e($booking->user->full_name); ?></div></td>
+                            <td class="text-center small"><?php echo e($booking->check_in->format('d/m/Y')); ?></td>
+                            <td class="text-center small"><?php echo e($booking->check_out->format('d/m/Y')); ?></td>
+                            <td class="text-center fw-bold text-success"><?php echo e(number_format($booking->total_amount)); ?>đ</td>
+                            <td class="text-center">
+                                <span class="admin-badge admin-badge-warning">Chờ duyệt hủy</span>
+                            </td>
+                            <td class="text-center">
+                                <?php if(!$booking->payment): ?>
+                                    <span class="admin-badge admin-badge-pending">Đang chờ thanh toán</span>
+                                <?php else: ?>
+                                    <span class="admin-badge <?php echo e($booking->payment->displayStatusBadgeClass()); ?>"><?php echo e($booking->payment->displayStatusLabel()); ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-center">
+                                <div class="admin-actions d-flex justify-content-center gap-1">
+                                    <a href="<?php echo e(route('host.bookings.cancel-approve', ['booking' => $booking, 'action' => 'approve'])); ?>" class="admin-action-btn" style="color: var(--admin-success); border-color: var(--admin-success);" onclick="return confirm('Duyệt yêu cầu hủy?')" title="Duyệt hủy">
+                                        <i class="bi bi-check-circle"></i>
+                                    </a>
+                                    <a href="<?php echo e(route('host.bookings.cancel-approve', ['booking' => $booking, 'action' => 'reject'])); ?>" class="admin-action-btn admin-action-btn-danger" onclick="return confirm('Từ chối yêu cầu hủy?')" title="Từ chối hủy">
+                                        <i class="bi bi-x-circle"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </tbody>
+            </table>
+        </div>
+        <?php if($cancelRequests->hasPages()): ?>
+        <div class="mt-4 d-flex justify-content-center">
+            <?php echo e($cancelRequests->links()); ?>
+
+        </div>
+        <?php endif; ?>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- Danh sách booking -->
 <div class="card border-0 shadow-sm rounded-3">
     <div class="card-header bg-white py-3 border-light-subtle">
@@ -121,33 +189,13 @@
                             <td class="text-center small"><?php echo e($booking->check_out->format('d/m/Y')); ?></td>
                             <td class="text-center fw-bold text-success"><?php echo e(number_format($booking->total_amount)); ?>đ</td>
                             <td class="text-center">
-                                <?php
-                                    $statusClass = match ($booking->status) {
-                                        \App\Models\Booking::STATUS_PENDING => 'admin-badge-pending',
-                                        \App\Models\Booking::STATUS_CONFIRMED => 'admin-badge-confirmed',
-                                        \App\Models\Booking::STATUS_CHECKED_IN => 'admin-badge-ongoing',
-                                        \App\Models\Booking::STATUS_COMPLETED => 'admin-badge-success',
-                                        \App\Models\Booking::STATUS_CANCELLED => 'admin-badge-cancelled',
-                                        default => 'admin-badge-secondary',
-                                    };
-                                ?>
-                                <span class="admin-badge <?php echo e($statusClass); ?>"><?php echo e($booking->statusLabel()); ?></span>
+                                <span class="admin-badge <?php echo e($booking->statusBadgeClass()); ?>"><?php echo e($booking->statusLabel()); ?></span>
                             </td>
                             <td class="text-center">
                                 <?php if(!$booking->payment): ?>
-                                    <span class="admin-badge admin-badge-secondary">Chưa thanh toán</span>
+                                    <span class="admin-badge admin-badge-pending">Đang chờ thanh toán</span>
                                 <?php else: ?>
-                                    <?php
-                                        $payClass = match ($booking->payment->payment_status) {
-                                            \App\Models\Payment::STATUS_SUCCESS => 'admin-badge-success',
-                                            \App\Models\Payment::STATUS_PENDING => ($booking->payment->paid_at ? 'admin-badge-info' : 'admin-badge-pending'),
-                                            default => 'admin-badge-secondary',
-                                        };
-                                        $payLabel = $booking->payment->payment_status === \App\Models\Payment::STATUS_PENDING && $booking->payment->paid_at
-                                            ? 'Chờ duyệt'
-                                            : $booking->payment->statusLabel();
-                                    ?>
-                                    <span class="admin-badge <?php echo e($payClass); ?>"><?php echo e($payLabel); ?></span>
+                                    <span class="admin-badge <?php echo e($booking->payment->displayStatusBadgeClass()); ?>"><?php echo e($booking->payment->displayStatusLabel()); ?></span>
                                 <?php endif; ?>
                             </td>
                             <td class="text-center">
@@ -155,14 +203,6 @@
                                     <button type="button" class="admin-action-btn view-booking-detail" data-id="<?php echo e($booking->id); ?>" data-url="<?php echo e(route('host.bookings.show', $booking)); ?>" title="Chi tiết">
                                         <i class="bi bi-eye"></i>
                                     </button>
-                                    <?php if($booking->cancel_status == 'pending'): ?>
-                                        <a href="<?php echo e(route('host.bookings.cancel-approve', ['booking' => $booking, 'action' => 'approve'])); ?>" class="admin-action-btn" style="color: var(--admin-success); border-color: var(--admin-success);" onclick="return confirm('Duyệt yêu cầu hủy?')" title="Duyệt hủy">
-                                            <i class="bi bi-check-circle"></i>
-                                        </a>
-                                        <a href="<?php echo e(route('host.bookings.cancel-approve', ['booking' => $booking, 'action' => 'reject'])); ?>" class="admin-action-btn admin-action-btn-danger" onclick="return confirm('Từ chối yêu cầu hủy?')" title="Từ chối hủy">
-                                            <i class="bi bi-x-circle"></i>
-                                        </a>
-                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>

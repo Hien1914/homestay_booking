@@ -1,5 +1,5 @@
 <footer class="site-footer">
-  <div class="container-footer">
+  <div class="container-setting">
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="footer-logo">
@@ -36,7 +36,7 @@
   </div>
   
   <div class="footer-bottom">
-    <div class="container-footer">
+    <div class="container-setting">
       <div class="footer-bottom-content">
         <p class="text-center">© {{ date('Y') }} NestAway. Bảo lưu mọi quyền.</p>
       </div>

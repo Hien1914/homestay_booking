@@ -49,7 +49,7 @@
       </div>
       <div class="col-lg-6 about-section-copy">
         <h4 class="text-uppercase fw-bold mb-2" style="color: var(--green-700)">Về NestAway</h4>
-        <h3 class="display-6 mb-4 about-section-title" style="font-weight: 500; font-family: 'Google Sans', sans-serif;">
+        <h3 class="display-6 mb-4 about-section-title" style="font-weight: 500; font-family: var(--font-google-sans)">
           Nền tảng kết nối cho người Việt du lịch
         </h3>
         <p class="text-muted mb-4 about-section-lead">
@@ -103,7 +103,7 @@
 <section class="container-setting bg-white">
     <div class="text-center mb-5">
       <h4 class="text-success text-uppercase fw-bold mb-2">Quy trình</h4>
-      <h2 class="display-6 fw-bold" style="font-family: 'Google Sans', sans-serif;">
+      <h2 class="display-6" style="font-weight: 500; font-family: var(--font-google-sans)">
         Đặt phòng chỉ với<br/>3 bước đơn giản
       </h2>
     </div>
@@ -112,21 +112,21 @@
       <div class="col-md-4">
         <div class="text-center p-4 bg-white rounded shadow-sm h-100">
           <div class="step-num">1</div>
-          <h5 class="fw-semibold mb-3" style="font-family: 'Google Sans', sans-serif;">Tìm kiếm và khám phá</h5>
+          <h5 class="fw-semibold mb-3" style="font-weight: 500; font-family: var(--font-google-sans)">Tìm kiếm và khám phá</h5>
           <p class="text-muted small">Lọc theo địa điểm, ngày đi, số khách và ngân sách để thấy ngay những homestay phù hợp.</p>
         </div>
       </div>
       <div class="col-md-4">
         <div class="text-center p-4 bg-white rounded shadow-sm h-100">
           <div class="step-num">2</div>
-          <h5 class="fw-semibold mb-3" style="font-family: 'Google Sans', sans-serif;">So sánh và chọn phòng</h5>
+          <h5 class="fw-semibold mb-3" style="font-weight: 500; font-family: var(--font-google-sans)">So sánh và chọn phòng</h5>
           <p class="text-muted small">Xem ảnh thật, giá theo đêm, tiện nghi và đánh giá trước khi đưa ra quyết định.</p>
         </div>
       </div>
       <div class="col-md-4">
         <div class="text-center p-4 bg-white rounded shadow-sm h-100">
           <div class="step-num">3</div>
-          <h5 class="fw-semibold mb-3" style="font-family: 'Google Sans', sans-serif;">Đặt chỗ và tận hưởng</h5>
+          <h5 class="fw-semibold mb-3" style="font-weight: 500; font-family: var(--font-google-sans)">Đặt chỗ và tận hưởng</h5>
           <p class="text-muted small">Nhận xác nhận nhanh, liên hệ chủ nhà dễ dàng và bắt đầu chuyến đi theo đúng kế hoạch.</p>
         </div>
       </div>
@@ -136,7 +136,7 @@
 @include('clients.layout.partials.testimonial-carousel')
 
 <section class="container-setting py-5 bg-white text-black text-center">
-    <h2 class="display-5 fw-light mb-3" style="font-family: 'Google Sans', sans-serif;">
+    <h2 class="display-5 fw-light mb-3" style="font-weight: 500; font-family: var(--font-google-sans)">
       Bắt đầu hành trình của bạn ngay hôm nay
     </h2>
     <p class="lead mb-4">

@@ -20,8 +20,8 @@
         [
             'title' => 'Đặt phòng và thanh toán',
             'items' => [
-                ['route' => 'admin.bookings', 'icon' => 'bi-calendar-check-fill', 'label' => 'Đặt phòng', 'badge' => \App\Models\Payment::where('payment_status', \App\Models\Payment::STATUS_PENDING)->whereNotNull('paid_at')->count()],
-                ['route' => 'admin.payments', 'icon' => 'bi-wallet2', 'label' => 'Thanh toán', 'badge' => \App\Models\Payment::where('payment_status', \App\Models\Payment::STATUS_PENDING)->whereNotNull('paid_at')->count()],
+                ['route' => 'admin.bookings', 'icon' => 'bi-calendar-check-fill', 'label' => 'Đặt phòng', 'badge' => \App\Models\Booking::where('status', \App\Models\Booking::STATUS_PENDING)->count()],
+
                 ['route' => 'admin.payouts', 'icon' => 'bi-cash-stack', 'label' => 'Yêu cầu rút tiền', 'badge' => \App\Models\Payout::where('status', 'pending')->count()],
 
             ],

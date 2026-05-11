@@ -42,13 +42,7 @@
                 <div class="admin-detail-item">
                     <span class="admin-detail-label">Trạng thái</span>
                     <span class="admin-detail-value">
-                        @switch($booking->status)
-                            @case('pending') <span class="admin-badge admin-badge-pending">Chờ xác nhận</span> @break
-                            @case('confirmed') <span class="admin-badge admin-badge-success">Thành công</span> @break
-                            @case('checked_in') <span class="admin-badge admin-badge-ongoing">Đang ở</span> @break
-                            @case('completed') <span class="admin-badge admin-badge-success">Hoàn thành</span> @break
-                            @case('cancelled') <span class="admin-badge admin-badge-danger">Đã hủy</span> @break
-                        @endswitch
+                        <span class="admin-badge {{ $booking->statusBadgeClass() }}">{{ $booking->statusLabel() }}</span>
                     </span>
                 </div>
                 @if($booking->cancel_status != 'none' && $booking->cancel_status)
@@ -65,13 +59,7 @@
                 <div class="admin-detail-item">
                     <span class="admin-detail-label">Thanh toán</span>
                     <span class="admin-detail-value">
-                        @if($booking->payment->payment_status === \App\Models\Payment::STATUS_SUCCESS)
-                            <span class="text-success small fw-medium">Đã thanh toán ({{ $booking->payment->payment_method }})</span>
-                        @elseif($booking->payment->paid_at)
-                            <span class="text-info small fw-medium">Đã CK, chờ xác nhận</span>
-                        @else
-                            <span class="text-danger small fw-medium">Chưa thanh toán</span>
-                        @endif
+                        <span class="admin-badge {{ $booking->payment->displayStatusBadgeClass() }}">{{ $booking->payment->displayStatusLabel() }}</span>
                     </span>
                 </div>
                 @endif

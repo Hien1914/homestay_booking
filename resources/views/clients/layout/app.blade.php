@@ -14,11 +14,15 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    
     <!-- Custom Stylesheets -->
     <link rel="stylesheet" href="{{ asset('css/variable.css') }}">
     <link rel="stylesheet" href="{{ asset('css/clients/layout.css?v=2.0') }}">
     <link rel="stylesheet" href="{{ asset('css/clients/responsive.css?v=1.2') }}">
 
+    @stack('styles')
     <title>@yield('title', 'NestAway') | Homestay Việt Nam</title>
 </head>
 <body class="d-flex flex-column min-vh-100">

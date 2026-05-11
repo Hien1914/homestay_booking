@@ -22,8 +22,7 @@
     font-size: 1.4rem;
     font-weight: 600;
     color: var(--green-700);
-    margin-top: 0;
-    margin-bottom: 16px;
+    margin: 0;
 }
 
 .policy-subsection-title {

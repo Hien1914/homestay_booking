@@ -1,96 +1,8 @@
 @extends('clients.layout.app')
 @section('title', 'Lịch sử đặt phòng')
 @section('content')
-<style>
-  @import url('{{ asset('css/clients/profile.css') }}');
-
-  .booking-history-table th {
-    background: #f8fafc;
-    color: #475569;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.025em;
-  }
-
-  .booking-history-table th,
-  .booking-history-table td {
-    vertical-align: middle;
-    padding: 16px 14px;
-    border-bottom: 1px solid #f1f5f9;
-  }
-
-  .admin-badge {
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    display: inline-block;
-  }
-
-  .admin-badge-warning { background: #fef3c7; color: #92400e; }
-  .admin-badge-success { background: #dcfce7; color: #166534; }
-  .admin-badge-info { background: #e0f2fe; color: #075985; }
-  .admin-badge-primary { background: #dbeafe; color: #1e40af; }
-  .admin-badge-danger { background: #fee2e2; color: #991b1b; }
-  .admin-badge-secondary { background: #f1f5f9; color: #475569; }
-
-  .booking-history-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .booking-history-icon-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #e2e8f0;
-    background: #fff;
-    color: #475569;
-    transition: all 0.2s ease;
-  }
-
-  .booking-history-icon-btn:hover {
-    background: #f8fafc;
-    color: #1e293b;
-    border-color: #cbd5e1;
-  }
-
-  .booking-history-icon-btn.is-danger {
-    color: #ef4444;
-  }
-
-  .booking-history-icon-btn.is-danger:hover {
-    background: #fef2f2;
-    border-color: #fecaca;
-  }
-
-  .booking-history-pay-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 8px;
-    background: #166534;
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-
-  .booking-history-pay-link:hover {
-    background: #14532d;
-    color: #fff;
-    transform: translateY(-1px);
-  }
-</style>
+<link rel="stylesheet" href="{{ asset('css/clients/profile.css') }}">
+<link rel="stylesheet" href="{{ asset('css/clients/booking-history.css') }}">
 
 <section class="profile-page section-py" style="min-height: 60vh;">
   <div class="container-setting my-4">
@@ -104,6 +16,11 @@
           <i class="fa-solid fa-rotate-right"></i>
           Tải lại
         </button>
+      </div>
+
+      <div class="alert alert-warning mb-4 rounded-4" style="border: 1px solid #fcd34d; background-color: #fffbeb; color: #b45309; padding: 16px; font-size: 0.95rem;">
+        <i class="fa-solid fa-circle-exclamation me-2 fs-5 align-middle"></i> 
+        <strong>Lưu ý quan trọng:</strong> Quý khách <b>BẮT BUỘC 100%</b> phải thực hiện thao tác <strong style="color: #0d6efd;"><i class="fa-solid fa-key"></i> Nhận phòng</strong> và <strong style="color: #6366f1;"><i class="fa-solid fa-door-closed"></i> Trả phòng</strong> trực tiếp trên hệ thống tại trang Lịch sử đặt phòng này ngay khi đến nhận và rời khỏi chỗ nghỉ. Việc này là bắt buộc để hệ thống ghi nhận chính xác thời gian lưu trú, đảm bảo quyền lợi của quý khách và tuân thủ các chính sách của NestAway.
       </div>
 
       <div class="table-responsive">
@@ -137,27 +54,15 @@
                         </td>
                         <td class="text-center"><strong>{{ number_format($booking->total_amount, 0, ',', '.') }} đ</strong></td>
                         <td class="text-center">
-                            @php
-                                $statusClass = match($booking->status) {
-                                    \App\Models\Booking::STATUS_PENDING => 'admin-badge-warning',
-                                    \App\Models\Booking::STATUS_CONFIRMED => 'admin-badge-success',
-                                    \App\Models\Booking::STATUS_CHECKED_IN => 'admin-badge-info',
-                                    \App\Models\Booking::STATUS_COMPLETED => 'admin-badge-primary',
-                                    \App\Models\Booking::STATUS_CANCELLED => 'admin-badge-danger',
-                                    default => 'admin-badge-secondary',
-                                };
-                            @endphp
-                            <span class="admin-badge {{ $statusClass }}">{{ $booking->statusLabel() }}</span>
+                            <span class="admin-badge {{ $booking->statusBadgeClass() }}">{{ $booking->statusLabel() }}</span>
                         </td>
                         <td class="text-center">
-                            @if($booking->payment && $booking->payment->payment_status === \App\Models\Payment::STATUS_SUCCESS)
-                                <span class="text-success fw-bold" style="font-size: 0.85rem;"><i class="bi bi-check-circle-fill me-1"></i> Đã thanh toán</span>
-                            @elseif($booking->payment && $booking->payment->paid_at)
-                                <span class="admin-badge admin-badge-info">Đã thanh toán</span>
-                            @elseif($booking->status === \App\Models\Booking::STATUS_PENDING || $booking->status === \App\Models\Booking::STATUS_CONFIRMED)
+                            @if($booking->payment && $booking->payment->payment_status === \App\Models\Payment::STATUS_PENDING && !$booking->payment->paid_at && in_array($booking->status, [\App\Models\Booking::STATUS_PENDING, \App\Models\Booking::STATUS_CONFIRMED]))
                                 <a href="{{ route('payment.show', ['booking' => $booking->id]) }}" class="booking-history-pay-link">
                                     <i class="bi bi-credit-card-2-front-fill me-1"></i> Thanh toán ngay
                                 </a>
+                            @elseif($booking->payment)
+                                <span class="admin-badge {{ $booking->payment->displayStatusBadgeClass() }}">{{ $booking->payment->displayStatusLabel() }}</span>
                             @else
                                 <span class="text-muted">-</span>
                             @endif
@@ -235,3 +140,4 @@
   </div>
 </section>
 @endsection
+

@@ -370,7 +370,7 @@
                 @endif
               </div>
               <div class="card-body d-flex flex-column gap-3 p-4">
-                <h3 class="fw-bold mb-0">{{ $item->title }}</h3>
+                <h4 class="fw-bold mb-0">{{ $item->title }}</h4>
                 <p class="text-muted small mb-0">
                   <i class="fa-solid fa-location-dot me-1"></i>{{ $item->province ?? 'Việt Nam' }}
                 </p>

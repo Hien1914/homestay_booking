@@ -69,6 +69,13 @@
                         </ul>
                     </li>
                 </ul>
+
+                <h3 class="policy-subsection-title">2.5. Quy định Bắt buộc khi Nhận và Trả phòng</h3>
+                <ul>
+                    <li><strong>BẮT BUỘC 100%:</strong> Người dùng phải thực hiện xác nhận thao tác <strong>Nhận phòng (Check-in)</strong> và <strong>Trả phòng (Check-out)</strong> trực tiếp trên hệ thống NestAway tại phần <em>Lịch sử đặt phòng</em>.</li>
+                    <li>Thao tác này là căn cứ hợp lệ để giải quyết mọi khiếu nại (nếu có) và đảm bảo quyền lợi của người dùng trong suốt quá trình lưu trú.</li>
+                    <li>Trường hợp người dùng không thực hiện các thao tác xác nhận này trên hệ thống, NestAway có quyền từ chối hỗ trợ giải quyết các vấn đề phát sinh liên quan đến thời gian lưu trú, chất lượng phòng và thanh toán.</li>
+                </ul>
             </div>
 
             <!-- 3. Chính sách thanh toán -->

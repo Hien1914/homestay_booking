@@ -1,6 +1,6 @@
 <section class="container-setting">
   <div class="mb-4">
-    <h2 class="display-6 fw-bold" style="font-family: 'Google Sans', sans-serif;">Những Điểm Đến Phổ Biến</h2>
+    <h2 class="display-6" style="font-weight: 500; font-family: var(--font-google-sans)">Những Điểm Đến Phổ Biến</h2>
   </div>
   
   <div class="carousel-destination" id="destinations-carousel">
@@ -33,7 +33,7 @@
   </div>
 </section>
 
-<?php if (! $__env->hasRenderedOnce('a1a03af1-94d5-4fd4-9be5-2bfb97dafbe3')): $__env->markAsRenderedOnce('a1a03af1-94d5-4fd4-9be5-2bfb97dafbe3'); ?>
+<?php if (! $__env->hasRenderedOnce('eca0c665-022c-4ecc-a33f-4369bd04e3a4')): $__env->markAsRenderedOnce('eca0c665-022c-4ecc-a33f-4369bd04e3a4'); ?>
   <?php $__env->startPush('scripts'); ?>
     <script>
       document.addEventListener('DOMContentLoaded', function() {

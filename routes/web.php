@@ -194,9 +194,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::put('/bookings/{booking}/confirm-payment', [AdminDataController::class, 'confirmPayment'])->name('payments.confirm');
 
     
-    // Payments
-    Route::get('/payments', [AdminDataController::class, 'payments'])->name('payments');
-    Route::get('/payments/{payment}', [AdminDataController::class, 'paymentShow'])->name('payments.show');
+
 
     
     // Amenities

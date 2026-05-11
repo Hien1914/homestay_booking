@@ -86,8 +86,8 @@
 
                             <div class="form-note">
                                 <i class="fas fa-info-circle me-2"></i> Bằng cách nhấn nút dưới đây, bạn đồng ý với các 
-                                <a href="{{ route('pages.terms') }}" class="fw-bold text-decoration-none">Điều khoản dịch vụ</a> và 
-                                <a href="{{ route('pages.privacy_policy') }}" class="fw-bold text-decoration-none">Chính sách bảo mật</a> 
+                                <a href="{{ route('pages.terms') }}#host-terms" class="fw-bold text-decoration-none" target="_blank">Điều khoản dịch vụ</a> và 
+                                <a href="{{ route('pages.privacy_policy') }}#host-privacy" class="fw-bold text-decoration-none" target="_blank">Chính sách bảo mật</a> 
                                 của NestAway dành cho Chủ nhà.
                             </div>
 

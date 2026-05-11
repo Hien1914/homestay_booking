@@ -1,24 +1,9 @@
 @php
-    $statusClass = match ($booking->status) {
-        \App\Models\Booking::STATUS_PENDING => 'admin-badge-pending',
-        \App\Models\Booking::STATUS_CONFIRMED => 'admin-badge-confirmed',
-        \App\Models\Booking::STATUS_CHECKED_IN => 'admin-badge-ongoing',
-        \App\Models\Booking::STATUS_COMPLETED => 'admin-badge-success',
-        \App\Models\Booking::STATUS_CANCELLED => 'admin-badge-cancelled',
-        default => 'admin-badge-secondary',
-    };
-
-    $paymentClass = 'admin-badge-secondary';
-    $paymentLabel = 'Chưa thanh toán';
+    $paymentClass = 'admin-badge-pending';
+    $paymentLabel = 'Đang chờ thanh toán';
     if ($booking->payment) {
-        $paymentClass = match ($booking->payment->payment_status) {
-            \App\Models\Payment::STATUS_SUCCESS => 'admin-badge-success',
-            \App\Models\Payment::STATUS_PENDING => ($booking->payment->paid_at ? 'admin-badge-info' : 'admin-badge-pending'),
-            default => 'admin-badge-secondary',
-        };
-        $paymentLabel = $booking->payment->payment_status === \App\Models\Payment::STATUS_PENDING && $booking->payment->paid_at
-            ? 'Chờ duyệt'
-            : $booking->payment->statusLabel();
+        $paymentClass = $booking->payment->displayStatusBadgeClass();
+        $paymentLabel = $booking->payment->displayStatusLabel();
     }
 @endphp
 
@@ -47,7 +32,7 @@
             </tr>
             <tr>
                 <th>Trạng thái đơn hàng</th>
-                <td><span class="admin-badge {{ $statusClass }}">{{ $booking->statusLabel() }}</span></td>
+                <td><span class="admin-badge {{ $booking->statusBadgeClass() }}">{{ $booking->statusLabel() }}</span></td>
             </tr>
             <tr>
                 <th>Trạng thái thanh toán</th>

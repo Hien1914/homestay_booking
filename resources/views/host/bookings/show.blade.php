@@ -35,13 +35,7 @@
                 <table class="admin-table">
                     <tr><th>Tổng tiền:</th><td>{{ number_format($booking->total_amount) }}đ</td></tr>
                     <tr><th>Trạng thái:</th><td>
-                        @switch($booking->status)
-                            @case('pending') <span class="admin-badge admin-badge-warning">Chờ xác nhận</span> @break
-                            @case('confirmed') <span class="admin-badge admin-badge-primary">Đã xác nhận</span> @break
-                            @case('checked_in') <span class="admin-badge admin-badge-info">Đang ở</span> @break
-                            @case('completed') <span class="admin-badge admin-badge-success">Hoàn thành</span> @break
-                            @case('cancelled') <span class="admin-badge admin-badge-danger">Đã hủy</span> @break
-                        @endswitch
+                        <span class="admin-badge {{ $booking->statusBadgeClass() }}">{{ $booking->statusLabel() }}</span>
                      </td></tr>
                     @if($booking->cancel_status != 'none')
                     <tr><th>Yêu cầu hủy:</th><td>
@@ -53,15 +47,7 @@
                     @endif
                     @if($booking->payment)
                     <tr><th>Thanh toán:</th><td>
-                        @if($booking->payment->payment_status === \App\Models\Payment::STATUS_SUCCESS)
-                            Đã nhận tiền
-                        @elseif($booking->payment->paid_at)
-                            Khách đã chuyển khoản, chờ admin xác nhận
-                        @elseif($booking->payment->payment_status === \App\Models\Payment::STATUS_PENDING)
-                            Chưa thanh toán
-                        @else
-                            {{ $booking->payment->statusLabel() }}
-                        @endif
+                        <span class="admin-badge {{ $booking->payment->displayStatusBadgeClass() }}">{{ $booking->payment->displayStatusLabel() }}</span>
                     </td></tr>
                     @endif
                 </table>

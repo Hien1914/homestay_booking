@@ -86,6 +86,7 @@
                             <th>ID</th>
                             <th>Ảnh</th>
                             <th>Tiêu đề</th>
+                            <th>Mô tả</th>
                             <th>Ngày tạo</th>
                             <th>Trạng thái</th>
                             <th>Lượt xem</th>
@@ -107,10 +108,13 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="fw-bold text-dark">{{ Str::limit($item->title, 60) }}</div>
+                                    <div class="fw-bold text-dark">{{ $item->title }}</div>
+                                </td>
+                                <td style="max-width: 400px;">
                                     @if($item->description)
-                                        <div class="small text-muted text-truncate" style="max-width: 250px;">
-                                            {{ $item->description }}</div>
+                                        <div class="small text-muted text-truncate" title="{{ $item->description }}">
+                                            {{ $item->description }}
+                                        </div>
                                     @endif
                                 </td>
                                 <td>{{ $item->created_at->format('d/m/Y') }}</td>
@@ -137,7 +141,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-5">
+                                <td colspan="8" class="text-center text-muted py-5">
                                     <i class="bi bi-newspaper fs-2 d-block mb-2"></i> Chưa có bài viết nào
                                 </td>
                             </tr>

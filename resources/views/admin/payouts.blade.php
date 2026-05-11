@@ -101,8 +101,7 @@
                         <tr>
                             <td><span class="admin-id-badge">#{{ $payout->id }}</span></td>
                             <td>
-                                <div class="fw-bold">{{ $payout->host->name }}</div>
-                                <div class="small text-muted">{{ $payout->host->email }}</div>
+                                <div class="fw-bold">{{ $payout->host->full_name }}</div>
                             </td>
                             <td class="fw-bold text-success">{{ number_format($payout->amount) }}đ</td>
                             <td>{{ $payout->created_at->format('d/m/Y H:i') }}</td>
