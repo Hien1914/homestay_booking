@@ -1,0 +1,149 @@
+/* ============================================================
+   ADMIN POSTS - Form + Show page styles
+   ============================================================ */
+
+/* -- Form-specific -- */
+.admin-post-current-image {
+    max-width: 160px;
+}
+
+#post-editor {
+    background: #fff;
+}
+
+#post-editor .ql-toolbar.ql-snow {
+    border-radius: 6px 6px 0 0;
+}
+
+#post-editor .ql-container.ql-snow {
+    min-height: 320px;
+    border-radius: 0 0 6px 6px;
+    font-size: 14px;
+}
+
+#post-editor .ql-editor {
+    min-height: 280px;
+}
+
+#post-editor .ql-editor.ql-blank::before {
+    color: #94a3b8;
+    font-style: normal;
+}
+
+/* -- Show page -- */
+.admin-post-show-title {
+    font-size: 1.2rem;
+    color: #0f172a;
+}
+
+.admin-post-show-description {
+    font-size: 0.95rem;
+    color: #475569;
+}
+
+.admin-post-show-image-path {
+    margin-top: 0.5rem;
+    font-size: 0.72rem;
+    color: #94a3b8;
+}
+
+.admin-post-show-label {
+    width: 40%;
+    color: #94a3b8;
+}
+
+.admin-post-show-meta {
+    font-size: 0.82rem;
+}
+
+.admin-post-show-muted {
+    font-size: 0.72rem;
+    color: #94a3b8;
+}
+
+.admin-post-show-id {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 0.78rem;
+}
+
+.admin-post-show-relative-time {
+    font-size: 0.78rem;
+    color: #94a3b8;
+}
+
+.content-display {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #334155;
+}
+
+.content-display h1,
+.content-display h2,
+.content-display h3,
+.content-display h4,
+.content-display h5,
+.content-display h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.content-display p {
+    margin-bottom: 1rem;
+}
+
+.content-display img {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+    border-radius: 8px;
+}
+
+.content-display ul,
+.content-display ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+.content-display blockquote {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-left: 3px solid #1d4ed8;
+    border-radius: 0 6px 6px 0;
+    background: #f8fafc;
+}
+
+.content-display table {
+    width: 100%;
+    margin-bottom: 1rem;
+    border-collapse: collapse;
+}
+
+.content-display table th,
+.content-display table td {
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 0.75rem;
+}
+
+.content-display table th {
+    background: #f8fafc;
+    font-weight: 600;
+}
+
+.content-display code {
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    background: #f1f5f9;
+    font-size: 90%;
+    font-family: monospace;
+}
+
+.content-display pre {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 6px;
+    background: #f1f5f9;
+    overflow-x: auto;
+}

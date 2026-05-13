@@ -8,15 +8,21 @@
   <div class="container-setting my-4">
     <div class="profile-detail-card" style="width: 100%;">
       <div class="profile-card-head" style="margin-bottom: 24px;">
-        <div>
-          <p class="profile-eyebrow">Quản lý đặt phòng</p>
-          <h2 class="profile-card-title">Lịch sử đặt phòng của tôi</h2>
+          <h2 class="profile-card-title mb-0">Lịch sử đặt phòng của tôi</h2>
         </div>
-        <button type="button" class="profile-ghost-btn" onclick="window.location.reload()">
-          <i class="fa-solid fa-rotate-right"></i>
-          Tải lại
-        </button>
       </div>
+
+      @if(session('error'))
+        <div class="alert alert-danger mb-3 rounded-4" style="border: 1px solid #fca5a5; background-color: #fef2f2; color: #991b1b; padding: 14px 16px; font-size: 0.95rem;">
+          <i class="fa-solid fa-circle-xmark me-2"></i> {{ session('error') }}
+        </div>
+      @endif
+
+      @if(session('success'))
+        <div class="alert alert-success mb-3 rounded-4" style="border: 1px solid #86efac; background-color: #f0fdf4; color: #166534; padding: 14px 16px; font-size: 0.95rem;">
+          <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
+        </div>
+      @endif
 
       <div class="alert alert-warning mb-4 rounded-4" style="border: 1px solid #fcd34d; background-color: #fffbeb; color: #b45309; padding: 16px; font-size: 0.95rem;">
         <i class="fa-solid fa-circle-exclamation me-2 fs-5 align-middle"></i> 
@@ -33,7 +39,6 @@
                     <th class="text-center">Tổng tiền</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center">Thanh toán</th>
-
                     <th class="text-center">Thao tác</th>
                 </tr>
             </thead>
@@ -73,8 +78,6 @@
                                 <a href="{{ route('homestay.show', $booking->homestay->slug) }}" class="booking-history-icon-btn" title="Xem phòng">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
-
-
 
                                 @if(in_array($booking->status, [\App\Models\Booking::STATUS_PENDING, \App\Models\Booking::STATUS_CONFIRMED]))
                                     @php
@@ -140,4 +143,3 @@
   </div>
 </section>
 @endsection
-

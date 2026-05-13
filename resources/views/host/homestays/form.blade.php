@@ -238,17 +238,12 @@
             <div class="card-body p-4">
                 <div class="mb-5">
                     <label for="cover_image" class="form-label fw-bold">Ảnh bìa chính {!! !$isEdit ? '<span class="text-danger">*</span>' : '<span class="text-muted fw-normal small"> (Nhấn vào ảnh để thay đổi)</span>' !!}</label>
-                    <div class="admin-upload-zone rounded-4 mb-3" id="cover-upload-zone" style="height: 250px; cursor: pointer;">
-                        <input type="file" id="cover_image" name="cover_image" class="admin-file-input" accept="image/*" {{ !$isEdit ? 'required' : '' }}>
-                        <div class="admin-upload-placeholder" {!! $isEdit && $primaryImage ? 'style="display:none;"' : '' !!}>
-                            <i class="bi bi-cloud-arrow-up fs-2 text-primary"></i>
-                            <p class="mb-1 fw-bold">Tải ảnh bìa lên</p>
-                            <small class="text-muted">JPG, PNG, WEBP. Tối đa 5MB</small>
-                        </div>
-                        <div class="admin-upload-preview d-flex justify-content-center align-items-center w-100 h-100" id="cover-preview" {!! $isEdit && $primaryImage ? 'style="display:block;"' : 'style="display:none;"' !!}>
-                            <img src="{{ $primaryImage ? asset('storage/' . $primaryImage->image_url) : '' }}" alt="Preview" class="rounded-4 h-100" style="width: auto; max-width: 100%; object-fit: contain; display: block;">
-                            <button type="button" class="admin-preview-remove shadow-sm" onclick="removeCoverPreview(event)">
-                                <i class="bi bi-x-lg"></i>
+                    <input type="file" id="cover_image" name="cover_image" class="form-control rounded-3" accept="image/*" {{ !$isEdit ? 'required' : '' }}>
+                    <div class="admin-image-preview-flex mt-3 d-flex flex-wrap gap-3">
+                        <div class="admin-image-item position-relative rounded-3 overflow-hidden shadow-sm border d-flex justify-content-center align-items-center" id="cover-preview" {!! $isEdit && $primaryImage ? 'style="display:flex;"' : 'style="display:none;"' !!}>
+                            <img @if($primaryImage) src="{{ asset('storage/' . $primaryImage->image_url) }}" @endif alt="Preview" id="cover-preview-image" class="object-fit-contain" style="height: 120px; width: auto; max-width: 200px; display: block;{{ $primaryImage ? '' : 'display:none;' }}">
+                            <button type="button" id="cover-delete-btn" class="admin-image-delete btn btn-danger btn-sm rounded-circle shadow position-absolute" style="top:5px; right:5px;{{ $primaryImage ? '' : 'display:none;' }}" onclick="removeCoverPreview(event)">
+                                <i class="bi bi-x"></i>
                             </button>
                         </div>
                     </div>
@@ -256,14 +251,7 @@
 
                 <div class="mb-5">
                     <label for="room_images" class="form-label fw-bold">Ảnh chi tiết / Ảnh phòng</label>
-                    <div class="admin-upload-zone admin-upload-multiple rounded-4 mb-3" id="room-upload-zone" style="height: 180px;">
-                        <input type="file" id="room_images" name="room_images[]" class="admin-file-input" accept="image/*" multiple>
-                        <div class="admin-upload-placeholder">
-                            <i class="bi bi-plus-square-dotted fs-2 text-primary"></i>
-                            <p class="mb-1 fw-bold">Thêm nhiều ảnh chi tiết</p>
-                            <small class="text-muted">Chọn hoặc kéo thả nhiều ảnh cùng lúc</small>
-                        </div>
-                    </div>
+                    <input type="file" id="room_images" name="room_images[]" class="form-control rounded-3" accept="image/*" multiple>
                     
                     <div class="admin-image-preview-flex mt-3 d-flex flex-wrap gap-3" id="room-preview-grid"></div>
 
@@ -435,17 +423,18 @@ document.addEventListener('DOMContentLoaded', function() {
     loadProvinces();
 
     // Cover Image Upload
-    const coverUploadZone = document.getElementById('cover-upload-zone');
     const coverInput = document.getElementById('cover_image');
     const coverPreview = document.getElementById('cover-preview');
-    const coverPlaceholder = coverUploadZone.querySelector('.admin-upload-placeholder');
+    const coverPreviewImage = document.getElementById('cover-preview-image');
+    const coverDeleteBtn = document.getElementById('cover-delete-btn');
 
     function handleCoverFile(file) {
         if (file && file.type.startsWith('image/')) {
             const url = URL.createObjectURL(file);
-            coverPreview.querySelector('img').src = url;
-            coverPlaceholder.style.display = 'none';
-            coverPreview.style.display = 'block';
+            coverPreviewImage.src = url;
+            coverPreviewImage.style.display = 'block';
+            coverPreview.style.display = 'flex';
+            coverDeleteBtn.style.display = 'inline-flex';
         }
     }
 
@@ -455,48 +444,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        coverUploadZone.addEventListener(eventName, preventDefaults, false);
-    });
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        coverUploadZone.addEventListener(eventName, () => {
-            coverUploadZone.classList.add('drag-over');
-        }, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        coverUploadZone.addEventListener(eventName, () => {
-            coverUploadZone.classList.remove('drag-over');
-        }, false);
-    });
-
-    coverUploadZone.addEventListener('drop', function(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        if (files.length > 0) {
-            coverInput.files = files;
-            handleCoverFile(files[0]);
-        }
-    }, false);
-
     window.removeCoverPreview = function(event) {
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
         coverInput.value = '';
+        coverPreviewImage.removeAttribute('src');
+        coverPreviewImage.style.display = 'none';
         coverPreview.style.display = 'none';
-        coverPlaceholder.style.display = 'block';
+        coverDeleteBtn.style.display = 'none';
     };
 
     // Room Images Upload
-    const roomUploadZone = document.getElementById('room-upload-zone');
     const roomInput = document.getElementById('room_images');
     const roomPreviewGrid = document.getElementById('room-preview-grid');
     let roomFiles = [];
@@ -523,31 +483,6 @@ document.addEventListener('DOMContentLoaded', function() {
         roomFiles = Array.from(this.files);
         updateRoomPreviews();
     });
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        roomUploadZone.addEventListener(eventName, preventDefaults, false);
-    });
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        roomUploadZone.addEventListener(eventName, () => {
-            roomUploadZone.classList.add('drag-over');
-        }, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        roomUploadZone.addEventListener(eventName, () => {
-            roomUploadZone.classList.remove('drag-over');
-        }, false);
-    });
-
-    roomUploadZone.addEventListener('drop', function(e) {
-        const dt = e.dataTransfer;
-        roomFiles = Array.from(dt.files);
-        const dataTransfer = new DataTransfer();
-        roomFiles.forEach(file => dataTransfer.items.add(file));
-        roomInput.files = dataTransfer.files;
-        updateRoomPreviews();
-    }, false);
 
     window.removeRoomFile = function(index) {
         roomFiles.splice(index, 1);

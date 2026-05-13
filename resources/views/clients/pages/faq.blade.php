@@ -18,7 +18,7 @@ $allFaqs = [
     ],
     'Hủy và thay đổi đặt phòng' => [
         ['question' => 'Tôi có thể hủy đặt phòng không?',      'answer' => 'Bạn có thể hủy đặt phòng theo chính sách của từng homestay. Vui lòng kiểm tra kỹ trước khi đặt.'],
-        ['question' => 'Tôi có được hoàn tiền khi hủy không?', 'answer' => 'Việc hoàn tiền phụ thuộc vào thời gian hủy và chính sách của homestay.'],
+        ['question' => 'Tôi có được hoàn tiền khi hủy không?', 'answer' => 'Có. Hệ thống cam kết hoàn tiền 100% số tiền bạn đã thanh toán nếu yêu cầu hủy đặt phòng được thực hiện trước thời gian nhận phòng.'],
         ['question' => 'Tôi có thể thay đổi ngày ở không?',    'answer' => 'Bạn có thể yêu cầu thay đổi thông qua hệ thống, tuy nhiên có thể phát sinh chi phí tùy theo chính sách của homestay.'],
     ],
     'Trong thời gian lưu trú' => [

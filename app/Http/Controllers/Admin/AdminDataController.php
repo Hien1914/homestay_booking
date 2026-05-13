@@ -8,10 +8,8 @@ use App\Models\Homestay;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Promotion;
-use App\Models\Amenity;
 use App\Models\Review;
 use App\Models\Post;
-use App\Models\Destination;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -271,7 +269,7 @@ class AdminDataController extends Controller
                       });
             })
             ->orWhere(function ($query) {
-                $query->where('status', Booking::STATUS_CANCELLED)
+                $query->where('status', '!=', Booking::STATUS_CANCELLED)
                       ->where('cancel_status', 'approved')
                       ->whereDoesntHave('refund');
             });
@@ -368,30 +366,6 @@ class AdminDataController extends Controller
         return view('admin.promotions.index', compact('promotions', 'totalPromotions', 'activePromotions', 'expiredPromotions', 'pendingPromotions', 'fromDate', 'toDate'));
     }
 
-    public function amenities(Request $request)
-    {
-        $request->validate([
-            'from_date' => ['nullable', 'date'],
-            'to_date' => ['nullable', 'date', 'after_or_equal:from_date'],
-        ]);
-        $fromDate = $request->query('from_date');
-        $toDate = $request->query('to_date');
-
-        $amenitiesQuery = Amenity::query()
-            ->withCount('homestays')
-            ->latest('created_at');
-        $this->applyDateRange($amenitiesQuery, $fromDate, $toDate);
-        $amenities = $amenitiesQuery->paginate(15)->withQueryString();
-
-        return view('admin.amenities.index', [
-            'amenities' => $amenities,
-            'totalAmenities' => $amenities->total(),
-            'activeAmenities' => $amenities->where('homestays_count', '>', 0)->count(),
-            'fromDate' => $fromDate,
-            'toDate' => $toDate,
-        ]);
-    }
-
     public function reviews(Request $request)
     {
         $request->validate([
@@ -442,12 +416,15 @@ class AdminDataController extends Controller
 
     public function confirmPayment(Request $request, Booking $booking)
     {
-        if ($booking->status === Booking::STATUS_CANCELLED && $booking->cancel_status === 'approved') {
-            \App\Models\Refund::firstOrCreate(
-                ['booking_id' => $booking->id],
-                ['amount' => $booking->refund_amount, 'status' => 'approved']
-            );
-            return back()->with('success', 'Đã xử lý hoàn tiền cho đơn hủy #' . $booking->id);
+        if ($booking->status !== Booking::STATUS_CANCELLED && $booking->cancel_status === 'approved') {
+            \DB::transaction(function () use ($booking) {
+                \App\Models\Refund::firstOrCreate(
+                    ['booking_id' => $booking->id],
+                    ['amount' => $booking->refund_amount, 'status' => 'approved']
+                );
+                $booking->update(['status' => Booking::STATUS_CANCELLED]);
+            });
+            return back()->with('success', 'Đã xác nhận hoàn tiền và chuyển trạng thái phòng thành Đã hủy cho đơn #' . $booking->id);
         }
 
         if (!$booking->payment) {

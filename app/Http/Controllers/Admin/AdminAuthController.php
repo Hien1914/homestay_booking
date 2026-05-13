@@ -42,7 +42,6 @@ class AdminAuthController extends Controller
     public function logout(Request $request)
     {
         $request->session()->forget(['admin_verified', 'admin_user']);
-        // Không dùng invalidate() để tránh ảnh hưởng phiên đăng nhập của Client/Host
         $request->session()->regenerate();
 
         return redirect()->route('admin.login')

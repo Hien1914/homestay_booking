@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Host;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Host\StorePromotionRequest;
-use App\Http\Requests\Host\UpdatePromotionRequest;
+use App\Http\Requests\Host\PromotionRequest;
 use App\Models\Promotion;
-use App\Models\Homestay;
 use Illuminate\Support\Facades\Auth;
 
 class PromotionController extends Controller
@@ -20,22 +18,18 @@ class PromotionController extends Controller
         $today = now()->toDateString();
 
         $activePromotions = (clone $query)->where('is_active', true)
-            ->where('start_date', '<=', $today)
             ->where('end_date', '>=', $today)
             ->count();
 
-        $upcomingPromotions = (clone $query)->where('is_active', true)
-            ->where('start_date', '>', $today)
+        $inactivePromotions = (clone $query)->where('is_active', false)
+            ->where('end_date', '>=', $today)
             ->count();
 
-        $expiredPromotions = (clone $query)->where(function($q) use ($today) {
-            $q->where('is_active', false)
-              ->orWhere('end_date', '<', $today);
-        })->count();
+        $expiredPromotions = (clone $query)->where('end_date', '<', $today)->count();
 
         $promotions = $query->latest()->paginate(15);
 
-        return view('host.promotions.index', compact('promotions', 'totalPromotions', 'activePromotions', 'upcomingPromotions', 'expiredPromotions'));
+        return view('host.promotions.index', compact('promotions', 'totalPromotions', 'activePromotions', 'inactivePromotions', 'expiredPromotions'));
     }
 
     public function create()
@@ -43,7 +37,7 @@ class PromotionController extends Controller
         return view('host.promotions.form', ['promotion' => null]);
     }
 
-    public function store(StorePromotionRequest $request)
+    public function store(PromotionRequest $request)
     {
         $validated = $request->validated();
         $validated['host_id'] = Auth::id();
@@ -57,7 +51,7 @@ class PromotionController extends Controller
         return view('host.promotions.form', compact('promotion'));
     }
 
-    public function update(UpdatePromotionRequest $request, Promotion $promotion)
+    public function update(PromotionRequest $request, Promotion $promotion)
     {
         if ($promotion->host_id !== Auth::id()) abort(403);
         $validated = $request->validated();

@@ -9,12 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class PayoutController extends Controller
 {
-    public function index()
-    {
-        $payouts = Payout::where('host_id', Auth::id())->latest()->paginate(15);
-        return view('host.payouts.index', compact('payouts'));
-    }
-
     public function store(Request $request)
     {
         $request->validate([

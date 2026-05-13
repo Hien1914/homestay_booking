@@ -157,6 +157,6 @@
 @endsection
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/admin/posts-show.css') }}">
+<link rel="stylesheet" href="{{ asset('css/admin/posts.css') }}">
 @endpush
 

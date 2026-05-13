@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Homestay;
 use App\Models\Favorite;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class FavoriteController extends Controller

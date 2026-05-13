@@ -67,6 +67,13 @@
                         </ul>
                     </li>
                 </ul>
+
+                <h3 class="policy-subsection-title">2.5. Quy định Bắt buộc khi Nhận và Trả phòng</h3>
+                <ul>
+                    <li><strong>BẮT BUỘC 100%:</strong> Người dùng phải thực hiện xác nhận thao tác <strong>Nhận phòng (Check-in)</strong> và <strong>Trả phòng (Check-out)</strong> trực tiếp trên hệ thống NestAway tại phần <em>Lịch sử đặt phòng</em>.</li>
+                    <li>Thao tác này là căn cứ hợp lệ để giải quyết mọi khiếu nại (nếu có) và đảm bảo quyền lợi của người dùng trong suốt quá trình lưu trú.</li>
+                    <li>Trường hợp người dùng không thực hiện các thao tác xác nhận này trên hệ thống, NestAway có quyền từ chối hỗ trợ giải quyết các vấn đề phát sinh liên quan đến thời gian lưu trú, chất lượng phòng và thanh toán.</li>
+                </ul>
             </div>
 
             <!-- 3. Chính sách thanh toán -->
@@ -116,34 +123,14 @@
                 
                 <h3 class="policy-subsection-title">5.1. Điều kiện hủy phòng</h3>
                 <ul>
-                    <li>Người dùng có thể hủy đặt phòng theo chính sách của từng homestay</li>
-                    <li>Thời gian hủy càng sớm, khả năng hoàn tiền càng cao</li>
+                    <li>Người dùng có quyền hủy đặt phòng nếu chưa đến thời gian nhận phòng (Check-in).</li>
+                    <li>Nếu khách đã nhận phòng, hệ thống sẽ ẩn nút hủy và không hỗ trợ hủy phòng.</li>
                 </ul>
 
-                <h3 class="policy-subsection-title">5.2. Các mức hủy phổ biến</h3>
-                <ol type="a">
-                    <li><strong>Hủy miễn phí:</strong>
-                        <ul>
-                            <li>Áp dụng khi hủy trước thời gian quy định (ví dụ: 3 – 7 ngày trước ngày nhận phòng)</li>
-                        </ul>
-                    </li>
-                    <li><strong>Hủy có phí:</strong>
-                        <ul>
-                            <li>Áp dụng khi hủy gần ngày nhận phòng</li>
-                            <li>Có thể bị trừ một phần chi phí (ví dụ: 30% – 70%)</li>
-                        </ul>
-                    </li>
-                    <li><strong>Không hoàn tiền:</strong>
-                        <ul>
-                            <li>Áp dụng khi:
-                                <ul>
-                                    <li>Hủy sát giờ nhận phòng</li>
-                                    <li>Không đến nhận phòng (no-show)</li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                </ol>
+                <h3 class="policy-subsection-title">5.2. Chính sách hủy phòng</h3>
+                <ul>
+                    <li>Hệ thống áp dụng duy nhất 1 chính sách: <strong>Hoàn tiền 100%</strong> số tiền khách đã thanh toán nếu yêu cầu hủy được thực hiện trước thời gian nhận phòng.</li>
+                </ul>
 
                 <h3 class="policy-subsection-title">5.3. Quy trình hủy phòng</h3>
                 <ul>
@@ -158,21 +145,11 @@
             <div class="policy-section">
                 <h2 class="policy-section-title">6. Chính sách hoàn tiền</h2>
                 <ul>
-                    <li>Việc hoàn tiền phụ thuộc vào:
+                    <li><strong>Số tiền hoàn lại:</strong> Cam kết hoàn đúng 100% số tiền gốc của đơn hàng mà khách đã thanh toán, không thu bất kỳ phụ phí hay phí dịch vụ nào.</li>
+                    <li><strong>Điều kiện:</strong> Yêu cầu hủy phải được tạo trên hệ thống khi đơn hàng đang ở trạng thái Chờ duyệt hoặc Đã xác nhận (chưa check-in).</li>
+                    <li><strong>Thời gian xử lý hoàn tiền:</strong>
                         <ul>
-                            <li>Thời gian hủy</li>
-                            <li>Chính sách của homestay</li>
-                        </ul>
-                    </li>
-                    <li>Thời gian xử lý hoàn tiền:
-                        <ul>
-                            <li>Từ 3 – 7 ngày làm việc</li>
-                        </ul>
-                    </li>
-                    <li>Số tiền hoàn lại có thể bị trừ:
-                        <ul>
-                            <li>Phí dịch vụ</li>
-                            <li>Phí xử lý (nếu có)</li>
+                            <li>Từ 3 – 7 ngày làm việc kể từ khi Admin nhận và xác nhận đơn hủy thành công.</li>
                         </ul>
                     </li>
                 </ul>

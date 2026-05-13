@@ -23,7 +23,6 @@ use App\Http\Controllers\Host\EarningsController as HostEarningsController;
 use App\Http\Controllers\Host\PromotionController as HostPromotionController;
 use App\Http\Controllers\Host\ReviewController as HostReviewController;
 use App\Http\Controllers\Host\AmenityController as HostAmenityController;
-use App\Http\Controllers\Host\DestinationController as HostDestinationController;
 use App\Http\Controllers\Host\CustomerController as HostCustomerController;
 use Illuminate\Support\Facades\Route;
 
@@ -132,16 +131,6 @@ Route::prefix('host')->name('host.')->middleware('role:host')->group(function ()
     Route::get('/amenities/{amenity}/edit', [HostAmenityController::class, 'edit'])->name('amenities.edit');
     Route::put('/amenities/{amenity}', [HostAmenityController::class, 'update'])->name('amenities.update');
     Route::delete('/amenities/{amenity}', [HostAmenityController::class, 'destroy'])->name('amenities.destroy');
-
-    // Điểm đến (Bỏ CRUD, host gửi qua form homestay)
-    /*
-    Route::get('/destinations', [HostDestinationController::class, 'index'])->name('destinations');
-    Route::get('/destinations/create', [HostDestinationController::class, 'create'])->name('destinations.create');
-    Route::post('/destinations', [HostDestinationController::class, 'store'])->name('destinations.store');
-    Route::get('/destinations/{destination}/edit', [HostDestinationController::class, 'edit'])->name('destinations.edit');
-    Route::put('/destinations/{destination}', [HostDestinationController::class, 'update'])->name('destinations.update');
-    Route::delete('/destinations/{destination}', [HostDestinationController::class, 'destroy'])->name('destinations.destroy');
-    */
 
     // Đánh giá
     Route::get('/reviews', [HostReviewController::class, 'index'])->name('reviews');

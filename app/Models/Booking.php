@@ -104,12 +104,11 @@ class Booking extends Model
 
     public function getRefundPercentAttribute(): int
     {
-        // Mặc định hoàn 100% nếu chưa có logic phức tạp hơn
         return 100;
     }
 
     public function getRefundAmountAttribute(): int
     {
-        return (int) round($this->total_amount * ($this->refund_percent / 100));
+        return (int) $this->total_amount;
     }
 }

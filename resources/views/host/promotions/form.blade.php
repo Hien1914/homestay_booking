@@ -52,12 +52,14 @@
 
                 <div class="col-12">
                     <label for="start_date" class="form-label fw-bold">Ngày bắt đầu <span class="text-danger">*</span></label>
-                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ old('start_date', $promotion?->start_date?->format('Y-m-d')) }}" required>
+                    <input type="date" id="start_date" name="start_date" class="form-control" min="{{ now()->toDateString() }}" value="{{ old('start_date', $promotion?->start_date?->format('Y-m-d')) }}" required>
+                    <div class="form-text small text-muted">Ngày bắt đầu phải từ hôm nay trở đi.</div>
                 </div>
 
                 <div class="col-12">
                     <label for="end_date" class="form-label fw-bold">Ngày kết thúc <span class="text-danger">*</span></label>
                     <input type="date" id="end_date" name="end_date" class="form-control" value="{{ old('end_date', $promotion?->end_date?->format('Y-m-d')) }}" required>
+                    <div class="form-text small text-muted">Ngày kết thúc phải sau ngày bắt đầu ít nhất 1 ngày.</div>
                 </div>
 
                 <div class="col-12">
@@ -84,3 +86,63 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+
+    // Helper: format Date to YYYY-MM-DD
+    function toDateStr(date) {
+        return date.toISOString().split('T')[0];
+    }
+
+    // Helper: add days to a date string
+    function addDays(dateStr, days) {
+        const d = new Date(dateStr + 'T00:00:00');
+        d.setDate(d.getDate() + days);
+        return toDateStr(d);
+    }
+
+    const today = toDateStr(new Date());
+
+    startDateInput.min = today;
+
+    if (!startDateInput.value || startDateInput.value < today) {
+        startDateInput.value = today;
+    }
+
+    function syncEndDate() {
+        const startVal = startDateInput.value;
+
+        if (!startVal) {
+            return;
+        }
+
+        const minEnd = addDays(startVal, 1);
+        endDateInput.min = minEnd;
+
+        if (!endDateInput.value || endDateInput.value < minEnd) {
+            endDateInput.value = minEnd;
+        }
+    }
+
+    startDateInput.addEventListener('change', function () {
+        if (this.value < today) {
+            this.value = today;
+        }
+        syncEndDate();
+    });
+
+    endDateInput.addEventListener('change', function () {
+        const startVal = startDateInput.value;
+        if (startVal && this.value < addDays(startVal, 1)) {
+            this.value = addDays(startVal, 1);
+        }
+    });
+
+    syncEndDate();
+});
+</script>
+@endpush

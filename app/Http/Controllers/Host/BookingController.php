@@ -97,10 +97,9 @@ class BookingController extends Controller
         if ($action === 'approve') {
             $booking->update([
                 'cancel_status' => 'approved', 
-                'host_approved' => true,
-                'status' => Booking::STATUS_CANCELLED
+                'host_approved' => true
             ]);
-            $msg = 'Đã duyệt hủy phòng.';
+            $msg = 'Đã duyệt hủy phòng, chờ hệ thống hoàn tiền.';
         } else {
             $booking->update(['cancel_status' => 'rejected']);
             $msg = 'Đã từ chối yêu cầu hủy.';

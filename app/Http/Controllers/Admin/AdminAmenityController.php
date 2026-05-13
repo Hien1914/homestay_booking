@@ -37,12 +37,6 @@ class AdminAmenityController extends Controller
         return back()->with('success', 'Đã duyệt tiện nghi: ' . $amenity->name);
     }
 
-    public function approveAll()
-    {
-        Amenity::where('is_approved', false)->update(['is_approved' => true]);
-        return back()->with('success', 'Đã duyệt tất cả tiện nghi đang chờ.');
-    }
-
     public function store(Request $request)
     {
         $name = trim($request->name);

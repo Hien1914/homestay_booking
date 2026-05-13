@@ -34,8 +34,8 @@
     <div class="admin-stat-card">
         <div class="admin-stat-icon admin-stat-icon-warning"><i class="bi bi-hourglass-split"></i></div>
         <div class="admin-stat-content">
-            <div class="admin-stat-value">{{ $upcomingPromotions }}</div>
-            <div class="admin-stat-label">Sắp diễn ra</div>
+            <div class="admin-stat-value">{{ $inactivePromotions }}</div>
+            <div class="admin-stat-label">Đang tắt</div>
         </div>
     </div>
     <div class="admin-stat-card">
@@ -67,16 +67,16 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $today = now()->toDateString();
+                    @endphp
                     @forelse($promotions as $promotion)
                         @php
-                            $today = now()->toDateString();
-                            $status = (!$promotion->is_active)
-                                ? ['class' => 'admin-badge-cancelled', 'label' => 'Đang tắt']
-                                : (($promotion->end_date->toDateString() < $today)
-                                    ? ['class' => 'admin-badge-cancelled', 'label' => 'Hết hạn']
-                                    : (($promotion->start_date->toDateString() > $today)
-                                        ? ['class' => 'admin-badge-pending', 'label' => 'Sắp diễn ra']
-                                        : ['class' => 'admin-badge-success', 'label' => 'Hoạt động']));
+                            $status = ($promotion->end_date->toDateString() < $today)
+                                ? ['class' => 'admin-badge-cancelled', 'label' => 'Hết hạn']
+                                : ($promotion->is_active
+                                    ? ['class' => 'admin-badge-success', 'label' => 'Hoạt động']
+                                    : ['class' => 'admin-badge-cancelled', 'label' => 'Đang tắt']);
                         @endphp
                         <tr>
                             <td class="ps-4"><span class="admin-id-badge">#{{ $promotion->id }}</span></td>

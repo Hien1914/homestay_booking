@@ -125,7 +125,7 @@
 @endsection
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/admin/destinations-form.css') }}">
+<link rel="stylesheet" href="{{ asset('css/admin/form.css') }}">
 @endpush
 
 @push('scripts')
